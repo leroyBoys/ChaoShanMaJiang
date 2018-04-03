@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ChaoShanMaJiang.iml" filepath="$PROJECT_DIR$/.idea/modules/ChaoShanMaJiang.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ChaoShanMaJiang_main.iml" filepath="$PROJECT_DIR$/.idea/modules/ChaoShanMaJiang_main.iml" group="ChaoShanMaJiang" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ChaoShanMaJiang_test.iml" filepath="$PROJECT_DIR$/.idea/modules/ChaoShanMaJiang_test.iml" group="ChaoShanMaJiang" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mahjong/mahjong.iml" filepath="$PROJECT_DIR$/.idea/modules/mahjong/mahjong.iml" group="mahjong" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mahjong/mahjong_main.iml" filepath="$PROJECT_DIR$/.idea/modules/mahjong/mahjong_main.iml" group="mahjong" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mahjong/mahjong_test.iml" filepath="$PROJECT_DIR$/.idea/modules/mahjong/mahjong_test.iml" group="mahjong" />
+    </modules>
+  </component>
+</project>

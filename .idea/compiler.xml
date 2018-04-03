@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="1.7">
+      <module name="ChaoShanMaJiang_main" target="1.7" />
+      <module name="ChaoShanMaJiang_test" target="1.7" />
+      <module name="mahjong_main" target="1.7" />
+      <module name="mahjong_test" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
