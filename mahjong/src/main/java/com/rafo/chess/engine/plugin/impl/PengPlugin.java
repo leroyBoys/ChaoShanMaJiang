@@ -64,14 +64,12 @@ public class PengPlugin extends AbstractPlayerPlugin<PengAction> implements IPlu
 			throw new ActionRuntimeException("peng is faild...", action.getActionType(), action.getPlayerUid());
 		}
 
-		if(!player.isTing() && player.getPassHuCard()>0){
+		if(player.getPassHuCard()>0){
 			player.setPassHuCard(0);
 		}
-		player.setPassCard(0);
 
 		CardGroup cardGroup = new CardGroup(gen.getSubType(), list);
 		player.getHandCards().getOpencards().add(cardGroup);
-		player.setOpen(true);
 
 		PayDetail payDetail = payment(action);
 		if(payDetail != null){
@@ -98,14 +96,6 @@ public class PengPlugin extends AbstractPlayerPlugin<PengAction> implements IPlu
 		if (count < 2) {
 			return false;
 		}
-	/*	//检测吃碰杠区域有没有这张牌
-		ArrayList<CardGroup> grouplist = player.getHandCards().getOpencards();
-		for(CardGroup group:grouplist){
-
-			if(group.getCardsList().get(0) == cardNum){
-				return false;
-			}
-		}*/
 
 		PengAction pengAct = new PengAction(act.getRoomInstance());
 		pengAct.setCard(act.getCard());

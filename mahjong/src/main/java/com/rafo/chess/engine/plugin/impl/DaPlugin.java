@@ -85,11 +85,6 @@ public class DaPlugin extends AbstractPlayerPlugin<DaAction> implements IPluginC
 		MJPlayer player = (MJPlayer) objects[0];
 		GameRoom roomIns = RoomManager.getRoomById(player.getRoomId());
 		DaAction daAct = new DaAction(roomIns);
-		if(player.isTing()){
-			//daAct.setAutoRun(true);
-			ArrayList<MJCard> hands = player.getHandCards().getHandCards();
-			daAct.setCard(hands.get(hands.size()-1).getCardNum());
-		}
 
 		daAct.setPlayerUid(player.getUid());
 		daAct.setFromUid(player.getUid());
@@ -97,9 +92,9 @@ public class DaPlugin extends AbstractPlayerPlugin<DaAction> implements IPluginC
 		daAct.setCanDoType(gen.getCanDoType());
 		roomIns.addCanExecuteAction(daAct);
 
-		if(!player.isTing()) {
+	/*	if(!player.isTing()) {
 			ActionManager.checkHuCardTip(player,roomIns,daAct);
-		}
+		}*/
 		return true;
 	}
 }

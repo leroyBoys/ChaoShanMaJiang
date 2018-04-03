@@ -26,7 +26,7 @@ public class PayDetail implements Cloneable {
 
 	private int subType;
 
-	private PayType payType = PayType.Multiple;
+	private PayType payType = PayType.ADD;
 	private int dianPlayer;//点炮的玩家
 
 	/**  是否已经呼叫转移过 */

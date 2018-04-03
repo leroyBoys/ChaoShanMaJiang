@@ -117,11 +117,6 @@ public class MjRobotAction {
         MJPlayer player = (MJPlayer) room.getPlayerById(mjPlayer.getUid());
         ArrayList<MJCard> list = player.getHandCards().getHandCards();
 
-        if(mjPlayer.isTing()){
-            step.setCard(list.get(list.size()-1).getCardNum());
-            return;
-        }
-
         Map<Integer,Integer> cardNumMap = new HashMap<>(5);
         ArrayList<Integer> cardNumLinks = new ArrayList<>(10);
         for (MJCard c : list) {

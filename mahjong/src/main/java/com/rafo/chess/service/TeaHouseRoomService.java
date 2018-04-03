@@ -446,7 +446,7 @@ public class TeaHouseRoomService {
         obj.putInt("roomId", room.getRoomId());
         obj.putInt("startTime", room.getCreateTime());
 
-        obj.putInt("count", (Integer) room.getAttribute(RoomAttributeConstants.GY_GAME_ROUND_COUNT_TYPE));
+        obj.putInt("count", (Integer) room.getAttribute(RoomAttributeConstants.Round));
         obj.putInt("type", room.getType());
         obj.putInt("tabType", room.getTabType());
 

@@ -72,11 +72,6 @@ public abstract class AbstractGameEngine<C extends IECardModel> implements
 			
 		}
 
-        for(int i = 0;i<gameRoom.getHongZhongCount();i++){
-            C c = (C) GameModelFactory.createCard(45, gen.getCardType());
-            cardList.add(c);
-        }
-
 		cardPool = new ArrayList<C>();
 		while (cardList.size() > 0) {
 			int index = MathUtils.random(0, cardList.size() - 1);

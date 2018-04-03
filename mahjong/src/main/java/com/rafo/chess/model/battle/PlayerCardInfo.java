@@ -17,23 +17,13 @@ public class PlayerCardInfo {
     private int colorCount;
     //进牌，有的时候需要知道进牌是什么
     private int inCard;
-    //鬼牌数量
-    private int ghostCount;
-
-    private int allGhostCount;
 
     //明牌数量，碰杠牌的数量，主要用于算归
     private Map<Integer, Integer> openCardCount;
 
+    private List<CardGroup> openCards;
+    private List<Integer> cardIds = new LinkedList<>();
     public PlayerCardInfo(List<MJCard> cards, List<CardGroup> openCards, int inCard){
-        init(cards, openCards, 45, inCard);
-    }
-
-    public PlayerCardInfo(List<MJCard> cards, List<CardGroup> openCards, int ghostCard, int inCard){
-        init(cards, openCards, ghostCard, inCard);
-    }
-
-    private void init(List<MJCard> cards, List<CardGroup> openCards, int ghostCard, int inCard){
         this.inCard = inCard;
 
         handCard = new int[34];
@@ -45,12 +35,7 @@ public class PlayerCardInfo {
 
         for(MJCard card : cards){
             int cardNum = card.getCardNum();
-
-            if(cardNum == ghostCard){
-                ghostCount++;
-                allGhostCount++;
-                continue;
-            }
+            cardIds.add(cardNum);
 
             if(cardNum < 40){
                 colors.add(cardNum/10);
@@ -58,32 +43,45 @@ public class PlayerCardInfo {
 
             int index = (cardNum/10-1)*9 + cardNum%10 -1;
             if(index < 0){
-                System.out.println(cardNum+","+ Json.toJson(cards));
+                System.out.println(cardNum+","+Json.toJson(cards));
             }
             handCard[index] ++;
         }
 
         openCardCount = new HashMap<>();
-        if(openCards != null && !openCards.isEmpty()){
-            for(CardGroup cg : openCards){
-                int cardNum = cg.getCardsList().get(0);
-                if(cardNum < 40){
-                    colors.add(cardNum/10);
-                }
-
-                int index = (cardNum/10-1)*9 + cardNum%10 -1;
-                openCardCount.put(index, cg.getCardsList().size());
-
-                for(Integer m:cg.getCardsList()) {
-                    if(m==ghostCard) {
-                        allGhostCount++;
-                    }
-                }
-
-            }
+        if(openCards == null){
+            openCards = new ArrayList<>();
         }
 
+        for(CardGroup cg : openCards){
+            int cardNum = cg.getCardsList().get(0);
+            if(cardNum < 40){
+                colors.add(cardNum/10);
+            }
+
+            int index = (cardNum/10-1)*9 + cardNum%10 -1;
+            Integer count = openCardCount.get(index);
+            count = count==null?0:count;
+            openCardCount.put(index, count+cg.getCardsList().size());
+
+            if(cardNum == cg.getCardsList().get(1)){
+                continue;
+            }
+
+            for(int cardNum2:cg.getCardsList()){
+                if(cardNum2 == cardNum){
+                    continue;
+                }
+                int index2 = (cardNum2/10-1)*9 + cardNum2%10 -1;
+                Integer count2 = openCardCount.get(index);
+                openCardCount.put(index2,count2==null?1:(count2+1));
+            }
+
+        }
+
+        this.openCards = openCards;
         this.colorCount = colors.size();
+
     }
 
 
@@ -99,6 +97,10 @@ public class PlayerCardInfo {
         return colorCount;
     }
 
+    public List<CardGroup> getOpenCards() {
+        return openCards;
+    }
+
     public void setColorCount(int colorCount) {
         this.colorCount = colorCount;
     }
@@ -107,28 +109,16 @@ public class PlayerCardInfo {
         return inCard;
     }
 
+    public List<Integer> getCardIds() {
+        return cardIds;
+    }
+
     public void setInCard(int inCard) {
         this.inCard = inCard;
     }
 
-    public int getGhostCount() {
-        return ghostCount;
-    }
-
-    public void setGhostCount(int ghostCount) {
-        this.ghostCount = ghostCount;
-    }
-
     public Map<Integer, Integer> getOpenCardCount() {
         return openCardCount;
-    }
-
-    public int getAllGhostCount() {
-        return allGhostCount;
-    }
-
-    public void setAllGhostCount(int allGhostCount) {
-        this.allGhostCount = allGhostCount;
     }
 
     public void setOpenCardCount(Map<Integer, Integer> openCardCount) {

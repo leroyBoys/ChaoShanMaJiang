@@ -97,10 +97,7 @@ public class Calculator {
 
 				if(!player.isHavHu()){
 					MJPlayer p = player;
-					if(p.isTing()){
-						battleBalance.setStatus(BattleBalance.HuStatus.BaoJiao);
-						battleBalance.setStatusFrom(p.getJiaoZuiPayPlayers());
-					}else if(p.getJiaozui() != null){
+					if(p.getJiaozui() != null){
 						battleBalance.setStatus(BattleBalance.HuStatus.ChaJiao);
 						battleBalance.setStatusFrom(p.getJiaoZuiPayPlayers());
 					}
@@ -187,22 +184,13 @@ public class Calculator {
 					CardBalance cardBlance = new CardBalance();
 					cardBlance.setType(cg.getGType());
 
-					if(cg.getGType()== MJGameType.PlayType.TieGuiAnGang||
-							cg.getGType()==MJGameType.PlayType.TieGuiMingGang||
-							cg.getGType()==MJGameType.PlayType.TieGuiBuGang||
-							cg.getGType()==MJGameType.PlayType.TieGuiBuZhongGang){
-
-						cardBlance.setCard(cg.getCardsList().get(0)*1000000+cg.getCardsList().get(1)*10000+cg.getCardsList().get(2)*100+cg.getCardsList().get(3));
-					}else{
-						cardBlance.setCard(cg.getCardsList().get(0));
-						ArrayList<Integer> mjCards =cg.getCardsList();
-						List<Integer> cards = new LinkedList<>();
-						for(int i = 0;i<mjCards.size();i++){
-							cards.add(mjCards.get(i));
-						}
-
-						cardBlance.setCards(cards);
+					cardBlance.setCard(cg.getCardsList().get(0));
+					ArrayList<Integer> mjCards =cg.getCardsList();
+					List<Integer> cards = new LinkedList<>();
+					for(int i = 0;i<mjCards.size();i++){
+						cards.add(mjCards.get(i));
 					}
+					cardBlance.setCards(cards);
 
 					cardBlance.setTargetId(cg.getFromIds());
 					battleBalance.addBalances(cardBlance);
@@ -226,7 +214,7 @@ public class Calculator {
 	public void convertToPayStep(PayDetail pd){
 		logger.debug("room:" + room.getRoomId() + ",round:" + room.getCurrRounds() +","+pd.toString());
 
-		if(!pd.isValid()){
+		if(!pd.isValid() || !room.isJiSuanGang(pd.getToUid())){
 			return;
 		}
 

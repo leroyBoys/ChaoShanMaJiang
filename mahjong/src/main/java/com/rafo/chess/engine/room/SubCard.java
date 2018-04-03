@@ -36,7 +36,7 @@ public abstract class SubCard {
     }
 
     public final int getNeedCardCount(GameRoom room){
-        int count = (int) room.getAttribute(RoomAttributeConstants.GY_GAME_ROUND_COUNT_TYPE);
+        int count = (int) room.getAttribute(RoomAttributeConstants.Round);
 
         int needCount = room.getRoundData(count).getNeedCardCount();
         return getNeedCardCount(needCount,room);

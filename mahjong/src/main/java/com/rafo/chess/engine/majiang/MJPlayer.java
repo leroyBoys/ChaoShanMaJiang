@@ -28,8 +28,7 @@ public class MJPlayer implements IPlayer {
 	private int sex;
 	private String head;
 	private String nickName;
-	/** 是否开门*/
-	private boolean isOpen = false;
+	private int continueBankCount = 0;//连庄次数
 	private boolean seated = false;
 	private String gateId;
 	private double longitude;
@@ -37,21 +36,12 @@ public class MJPlayer implements IPlayer {
 	private GangAction lastGangAction;
 	private boolean isRobot;
 	private boolean tieGuiOnOff=true;
-	/** 贴鬼碰杠限制,当本轮打出一张可贴鬼碰杠的牌，在下次摸牌前不能再贴鬼碰杠这张牌*/
-	private int teiGuiPengGangCard;
 	private List<Integer> jiaoZuiPayPlayers = new ArrayList<>();//叫嘴时候失分玩家列表
 
 	private String sameIp;
 	private List<Integer> sameIpAccIDs = new ArrayList<Integer>();
 	private PayDetail huPayDetail = null;
-
-	public boolean isOpen() {
-		return isOpen;
-	}
-
-	public void setOpen(boolean isOpen) {
-		this.isOpen = isOpen;
-	}
+	private List<Integer> zhuaMaCards = new ArrayList<Integer>();
 
 	public void reset(){
 		container.cleanHands();
@@ -60,14 +50,13 @@ public class MJPlayer implements IPlayer {
 		isTing=(false);
 		passCard = 0;
 		passHuCard = 0;
-		isOpen = false;
 		seated = false;
 		lastGangAction = null;
 		isHavHu = false;
 		tingHuCards.clear();
-		teiGuiPengGangCard = 0;
 		jiaoZuiPayPlayers.clear();
 		huPayDetail = null;
+		zhuaMaCards.clear();
 	}
 
 	public int getPassCard() {
@@ -160,10 +149,6 @@ public class MJPlayer implements IPlayer {
 		this.uid = uid;
 	}
 
-	public void setTeiGuiPengGangCard(int teiGuiPengGangCard) {
-		this.teiGuiPengGangCard = teiGuiPengGangCard;
-	}
-
 	public void setIndex(int index) {
 		this.index = index;
 	}
@@ -180,6 +165,14 @@ public class MJPlayer implements IPlayer {
 	@Override
 	public void setPlayerState(PlayState state) {
 		this.state = state;
+	}
+
+	public List<Integer> getZhuaMaCards() {
+		return zhuaMaCards;
+	}
+
+	public void setZhuaMaCards(List<Integer> zhuaMaCards) {
+		this.zhuaMaCards = zhuaMaCards;
 	}
 
 	@Override
@@ -258,6 +251,14 @@ public class MJPlayer implements IPlayer {
 		return head;
 	}
 
+	public int getContinueBankCount() {
+		return continueBankCount;
+	}
+
+	public void setContinueBankCount(int continueBankCount) {
+		this.continueBankCount = continueBankCount;
+	}
+
 	public void setHead(String head) {
 		this.head = head;
 	}
@@ -319,10 +320,6 @@ public class MJPlayer implements IPlayer {
 		if(!sameIpAccIDs.contains(accountID))
 			sameIpAccIDs.add(accountID);
 	}
-
-    public int getTeiGuiPengGangCard() {
-        return teiGuiPengGangCard;
-    }
 
 	public void setHuPayDetail(PayDetail huPayDetail) {
 		this.huPayDetail = huPayDetail;

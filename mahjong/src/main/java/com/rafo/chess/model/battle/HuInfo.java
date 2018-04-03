@@ -61,7 +61,7 @@ public class HuInfo {
 	}
 
 	public enum HuType{
-        QiDui, PingHu, DaDuiZi
+        QiDui, PingHu, DaDuiZi,HunYiSe
     }
 
 }

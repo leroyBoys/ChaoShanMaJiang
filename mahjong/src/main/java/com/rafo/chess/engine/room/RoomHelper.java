@@ -51,7 +51,7 @@ public class RoomHelper {
 
         boolean result = false;
 
-        int count = (Integer) room.getAttribute(RoomAttributeConstants.GY_GAME_ROUND_COUNT_TYPE);
+        int count = (Integer) room.getAttribute(RoomAttributeConstants.Round);
         for(Map.Entry<Integer,Integer> entry:cardUsedUidMap.entrySet()) {
             int targetPlayerId = entry.getKey();
             int willSubCard = entry.getValue();

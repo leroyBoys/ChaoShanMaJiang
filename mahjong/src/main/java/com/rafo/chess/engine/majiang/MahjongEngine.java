@@ -3,17 +3,20 @@ package com.rafo.chess.engine.majiang;
 import com.rafo.chess.engine.AbstractGameEngine;
 import com.rafo.chess.engine.action.IEPlayerAction;
 import com.rafo.chess.engine.action.exception.ActionRuntimeException;
-import com.rafo.chess.model.BattlePayStep;
-import com.rafo.chess.model.IPlayer;
-import com.rafo.chess.engine.majiang.action.*;
+import com.rafo.chess.engine.gameModel.factory.GameModelFactory;
+import com.rafo.chess.engine.majiang.action.DealerDealAction;
+import com.rafo.chess.engine.majiang.action.DealerDingZhuangAction;
+import com.rafo.chess.engine.majiang.action.IEMajongAction;
 import com.rafo.chess.engine.room.GameRoom;
+import com.rafo.chess.model.IPlayer;
 import com.rafo.chess.model.battle.BattleStep;
 import com.rafo.chess.service.BattleVideoService;
-
-import java.util.*;
-
+import com.rafo.chess.template.impl.RoomSettingTemplateGen;
+import com.rafo.chess.utils.MathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 /***
  * 麻将
@@ -55,7 +58,38 @@ public class MahjongEngine extends AbstractGameEngine<MJCard> {
 
 	@Override
 	public void shuffle() {
-		super.shuffle();
+		RoomSettingTemplateGen gen = gameRoom.getRstempateGen();
+		String cards = gen.getCardNumPool();
+		ArrayList<MJCard> cardList = new ArrayList<>();
+		for (String card : cards.split(",")) {
+			for(int i = 0;i<4;i++){
+				MJCard c = (MJCard) GameModelFactory.createCard(Integer.parseInt(card), gen.getCardType());
+				cardList.add(c);
+			}
+		}
+
+		if(gameRoom.getExtraCardModue() == 1){
+			for (int card = 11;card<20;card++) {
+				for(int i = 0;i<4;i++){
+					MJCard c = (MJCard) GameModelFactory.createCard(card, gen.getCardType());
+					cardList.add(c);
+				}
+			}
+		}else if(gameRoom.getExtraCardModue() == 2){
+			for (int card = 41;card<48;card++) {
+				for(int i = 0;i<4;i++){
+					MJCard c = (MJCard) GameModelFactory.createCard(card, gen.getCardType());
+					cardList.add(c);
+				}
+			}
+		}
+
+		cardPool = new ArrayList<>();
+		while (cardList.size() > 0) {
+			int index = MathUtils.random(0, cardList.size() - 1);
+			MJCard iecm = cardList.remove(index);
+			cardPool.add(iecm);
+		}
 	}
 
 	@Override
@@ -68,24 +102,6 @@ public class MahjongEngine extends AbstractGameEngine<MJCard> {
 		} else{
 			return mediator.executeAction(actionType, card, playerUid, subType, toBeCards);
 		}
-	}
-
-	/**
-	 * 自贡没有贴鬼碰杠开关
-	 * @param playerUid
-	 * @param card
-	 * @param toBeCards
-	 */
-	private void tieGuiPengGangSwitch(int playerUid, int card, String toBeCards) {
-		MJPlayer p = gameRoom.getPlayerById(playerUid);
-		if(p == null){
-			return;
-		}
-		p.setTieGuiOnOff(card==1);
-
-		BattleStep step = new BattleStep(playerUid,playerUid, 0);
-		step.addCard(card);
-		gameRoom.getMjGameService().sendBattleData(step,playerUid);
 	}
 
 	public void clean() {

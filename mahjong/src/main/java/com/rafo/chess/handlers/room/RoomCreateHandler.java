@@ -210,7 +210,7 @@ public class RoomCreateHandler extends GateClientRequestHandler {
 		loginRoom.setInBattle(room.getRoomStatus() != GameRoom.RoomState.Idle.getValue());
 		loginRoom.setOwnerAccountID(String.valueOf(room.getOwnerId()));
 		loginRoom.setRoomID(room.getRoomId());
-		loginRoom.setRoomType((Integer)room.getAttribute(RoomAttributeConstants.GY_GAME_ROUND_COUNT_TYPE));
+		loginRoom.setRoomType((Integer)room.getAttribute(RoomAttributeConstants.Round));
 		loginRoom.setRoundTotal(room.getTotalRound());
 		loginRoom.setServerId(serverId);
 		return loginRoom;

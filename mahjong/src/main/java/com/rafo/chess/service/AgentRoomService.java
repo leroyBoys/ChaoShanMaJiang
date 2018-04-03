@@ -455,8 +455,8 @@ public class AgentRoomService {
 
         SFSObject obj = new SFSObject();
         obj.putSFSArray("info", infos);
-        obj.putInt("rt", (Integer) room.getAttribute(RoomAttributeConstants.GY_GAME_ROUND_COUNT_TYPE));
-        obj.putInt("pt", (Integer)room.getAttribute(RoomAttributeConstants.GAME_PLAY_TYPE));
+        obj.putInt("rt", (Integer) room.getAttribute(RoomAttributeConstants.Round));
+        obj.putInt("pt", (Integer)room.getAttribute(RoomAttributeConstants.Type));
         obj.putInt("rule", room.getGameRule().getValue());
         obj.putInt("st", agentRoomStatus.getValue());
         obj.putInt("rd", room.getCurrRounds());

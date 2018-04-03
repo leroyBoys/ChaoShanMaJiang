@@ -59,42 +59,32 @@ public class RafoRoomService {
 			room.setAgentOwnerUid(uid);
 			room.setSubCard(new SubCardAgent());
 		}else {
-			if((req.getType() & MJGameType.CreateRoomType.payType1) == MJGameType.CreateRoomType.payType1){
+			/*if((req.getType() & MJGameType.CreateRoomType.payType1) == MJGameType.CreateRoomType.payType1){
 				room.setSubCard(new SubCardWiner());
-			}
+			}*/
 		}
 
 		room.init(req.getRoomID(), req.getTabType(), uid);
 
-		int gangShangDianPao = 0;
-		if((req.getType() & MJGameType.CreateRoomType.DianGang_DianPao) == MJGameType.CreateRoomType.DianGang_DianPao){
-			gangShangDianPao = 1;
+		int GangBoQuanBao = 0;
+		if((req.getType() & MJGameType.CreateRoomType.gangBaoQuanBao) == MJGameType.CreateRoomType.gangBaoQuanBao){
+			GangBoQuanBao = 1;
 		}
-		room.addAttribute(RoomAttributeConstants.GangShangHuDianPao, gangShangDianPao);
+		room.addAttribute(RoomAttributeConstants.GangBaoQuanBao, GangBoQuanBao);
 
-	/*	int hongZhongCount = 0;
-		if((req.getType() & MJGameType.CreateRoomType.gui_zj_2) == MJGameType.CreateRoomType.gui_zj_2){
-			hongZhongCount = 2;
-		}else if((req.getType() & MJGameType.CreateRoomType.gui_zj_3) == MJGameType.CreateRoomType.gui_zj_3){
-			hongZhongCount = 4;
+		if((req.getType() & MJGameType.CreateRoomType.canChiHu) == MJGameType.CreateRoomType.canChiHu){
+			room.addAttribute(RoomAttributeConstants.CanDianPao, 1);
 		}
 
-		if(hongZhongCount>0){
-			room.setHongZhongCount(hongZhongCount);
-		}*/
-
-		int maxFan = 0;
-		if((req.getType() & MJGameType.CreateRoomType.maxFan1) == MJGameType.CreateRoomType.maxFan1){
-			maxFan = 3;
-		}else if((req.getType() & MJGameType.CreateRoomType.maxFan2) == MJGameType.CreateRoomType.maxFan2){
-			maxFan = 4;
-		}else if((req.getType() & MJGameType.CreateRoomType.maxFan3) == MJGameType.CreateRoomType.maxFan3){
-			maxFan = 5;
+		if((req.getType() & MJGameType.CreateRoomType.liujuSuanGang) == MJGameType.CreateRoomType.liujuSuanGang){
+			room.addAttribute(RoomAttributeConstants.LiuJuSuanGang, 1);
 		}
 
-		room.addAttribute(RoomAttributeConstants.maxFan, maxFan);
-		room.addAttribute(RoomAttributeConstants.GY_GAME_ROUND_COUNT_TYPE, room.checkRoomCount(req.getCount()));
-		room.addAttribute(RoomAttributeConstants.GAME_PLAY_TYPE, req.getType());
+		room.addAttribute(RoomAttributeConstants.MaiMa, 2);
+		room.addAttribute(RoomAttributeConstants.ZhuaMa, 2);
+
+		room.addAttribute(RoomAttributeConstants.Round, room.checkRoomCount(req.getCount()));
+		room.addAttribute(RoomAttributeConstants.Type, req.getType());
 
 		if(room.isRobotRoom()){
 			RobotManager.initAIPlayer(room);
@@ -274,8 +264,8 @@ public class RafoRoomService {
 
 		res.setApplierID(applier.getUid());
 		res.setRoomID(room.getRoomId());
-		res.setRoomType((Integer) room.getAttribute(RoomAttributeConstants.GY_GAME_ROUND_COUNT_TYPE));
-		res.setPlayType((Integer)room.getAttribute(RoomAttributeConstants.GAME_PLAY_TYPE));
+		res.setRoomType((Integer) room.getAttribute(RoomAttributeConstants.Round));
+		res.setPlayType((Integer)room.getAttribute(RoomAttributeConstants.Type));
 		res.setTabType(room.getTabType());
 		if(room.getTeaHouse() != null) {
 			res.setHouseId(room.getTeaHouse().getId());
@@ -351,7 +341,7 @@ public class RafoRoomService {
 
 		builder.setOwnerAccountID(String.valueOf(room.getOwnerId()));
 		builder.setRoomID(roomID);
-		builder.setRoomType((Integer) room.getAttribute(RoomAttributeConstants.GY_GAME_ROUND_COUNT_TYPE));
+		builder.setRoomType((Integer) room.getAttribute(RoomAttributeConstants.Round));
 		builder.setIp((room.getPlayerById(room.getOwnerId())).getIp());
 
 		for (Integer accountID : accountIDs) {

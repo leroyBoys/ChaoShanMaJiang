@@ -107,61 +107,31 @@ public abstract class BuGangPlugin extends GangPlugin{
 		GameRoom gameRoom = RoomManager.getRoomById(pTemp.getRoomId());
 
 		int mjCardUnit = 0;
-		boolean isHasHongZhong = false;
 		for(MJCard mjCard:pTemp.getHandCards().getHandCards()){
 			mjCardUnit |= 1<<mjCard.getCardNum();
-			if(!isHasHongZhong && mjCard.getCardNum() == 45){
-				isHasHongZhong = true;
-			}
 		}
 
 		Set<Integer> hasCheck = new HashSet<>();
 		ArrayList<CardGroup> groupList = pTemp.getHandCards().getOpencards();
 		for (CardGroup cg : groupList) {
 			int num = cg.getCardsList().get(0);
-			if(pTemp.isTing()&& num != act.getCard()){
-				continue;
-			}
 
 			if (!isMatch(cg)) {
 				continue;
 			}
 
-			if(hasCheck.contains(num)){
+			if(pTemp.getPassCard() == num || hasCheck.contains(num)){
 				continue;
 			}
 
 			hasCheck.add(num);
 			int curUnit = 1 << num;
-			int subType = 0;
-			int targetAddNum = num;
 			if((curUnit & mjCardUnit) == curUnit){
-
-				subType = gen.getSubType();
-				if(cg.getCardsList().get(2) != cg.getCardsList().get(1)){//贴鬼碰---贴鬼补杠
-					subType = MJGameType.PlayType.TieGuiBuGang;
-				}
-			}else if(isHasHongZhong){
-				subType = MJGameType.PlayType.TieGuiBuZhongGang;
-				targetAddNum = 45;
+				GangAction gangAct = new GangAction(act.getRoomInstance(), pTemp.getUid(), act.getPlayerUid(),
+						cg.getCardsList().get(0), this.gen.getSubType());
+				gangAct.setCanDoType(gen.getCanDoType());
+				addGangAction(gameRoom,gangAct,pTemp);
 			}
-
-			if(subType == 0){
-				continue;
-			}
-
-			GangAction gangAct = new GangAction(act.getRoomInstance(), pTemp.getUid(), act.getPlayerUid(),
-					cg.getCardsList().get(0), subType);
-			gangAct.setCanDoType(subType-1);
-			if(subType != gen.getSubType()){
-				StringBuilder sb = new StringBuilder();
-				for(Integer cardNum:cg.getCardsList()){
-					sb.append(cardNum);
-				}
-				sb.append(targetAddNum);
-				gangAct.setToBeCards(sb.toString());
-			}
-			addGangAction(gameRoom,gangAct,pTemp);
 		}
 
 		return true;

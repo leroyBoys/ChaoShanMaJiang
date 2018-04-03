@@ -65,7 +65,7 @@ public abstract class AbstractPlayerPlugin<A extends IEPlayerAction> implements
 				payType = 1;
 			}
 		}
-		ratePay.setPayType(PayDetail.PayType.Multiple);
+		ratePay.setPayType(PayDetail.PayType.ADD);
 
 		if (payType == 0) {
 			int toUid = action.getPlayerUid();

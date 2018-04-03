@@ -576,7 +576,7 @@ public class MJTool {
     }
 
 
-    public static boolean isHu(List<MJCard> mjCards, int extraCard,int laiZiCount){
+    public static boolean isHu(List<MJCard> mjCards, int extraCard, int laiZiCount){
         int size = mjCards.size()+laiZiCount;
         List<Integer> cards = new LinkedList<>();
         if(extraCard > 0){

@@ -21,11 +21,6 @@ public class MJGameType {
         playType2ActionType.put(PlayType.Discard, IEMajongAction.PLAYER_ACTION_TYPE_CARD_PUTOUT);
         playType2ActionType.put(PlayType.Pong, IEMajongAction.PLAYER_ACTION_TYPE_CARD_PENG);
         playType2ActionType.put(PlayType.Kong, IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG);
-        playType2ActionType.put(PlayType.TieGuiPeng, IEMajongAction.PLAYER_ACTION_TYPE_CARD_PENG);
-        playType2ActionType.put(PlayType.TieGuiAnGang, IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG);
-        playType2ActionType.put(PlayType.TieGuiMingGang, IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG);
-        playType2ActionType.put(PlayType.TieGuiBuGang, IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG);
-        playType2ActionType.put(PlayType.TieGuiBuZhongGang, IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG);
         playType2ActionType.put(PlayType.DotKong, IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG);
         playType2ActionType.put(PlayType.CealedKong, IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG);
         playType2ActionType.put(PlayType.Hu, IEMajongAction.PLAYER_ACTION_TYPE_CARD_HU);
@@ -116,73 +111,30 @@ public class MJGameType {
         public static final int QiGui=192;		//七归
         public static final int BaGui=193;		//八归
 
-        public static final int CanTieGuiMingGang = 160;			//可贴鬼明杠
-        public static final int TieGuiMingGang = 161;				//贴鬼明杠
-        public static final int CanTieGuiPeng =162;				//可贴鬼碰
-        public static final int TieGuiPeng = 163;				//贴鬼碰
-        public static final int CanTieGuiAnGang=164;			//可贴鬼暗杠
-        public static final int TieGuiAnGang=165;			//贴鬼暗杠
-        public static final int CanTieGuiBuGang=166;			//可贴鬼补杠
-        public static final int TieGuiBuGang=167;			//贴鬼补杠
-        public static final int CanTieGuiBuZhongGang=168;			//可贴鬼补杠(红中)
-        public static final int TieGuiBuZhongGang=169;			//贴鬼补杠(红中)
         public static final int R_HuJiaoZhuanYi = 408;//转雨
 
-        private static final Map<Integer,Integer> subTypeGuiMap=new HashMap<Integer,Integer>();
-
-        static {
-            subTypeGuiMap.put(1, PlayType.YiGui);
-            subTypeGuiMap.put(2, PlayType.ErGui);
-            subTypeGuiMap.put(3, PlayType.SanGui);
-            subTypeGuiMap.put(4, PlayType.SiGui);
-            subTypeGuiMap.put(5, PlayType.WuGui);
-            subTypeGuiMap.put(6, PlayType.LiuGui);
-            subTypeGuiMap.put(7, PlayType.QiGui);
-            subTypeGuiMap.put(8, PlayType.BaGui);
-        }
-        public static int getSubTypeWithGuiCount(int guiCount) {
-            if(subTypeGuiMap.get(guiCount)!=null) {
-                return subTypeGuiMap.get(guiCount);
-            }
-
-            return 0;
-        }
     }
-
-    //玩儿法类型
-    public class RoomPlayType {
-        public static final int Zhuoji = 1;
-        public static final int Sandingguai = 1<<1;
-        public static final int Fanpaiji = 1<<2;
-        public static final int Yaobaiji = 1<<3;
-        public static final int Yikouer = 1<<4;
-        public static final int Lianzhuang = 1<<5;
-    }
-
-    public static class ResultType {
-        public static final int None = 1; // --未叫牌
-        public static final int Jiao = 2; // --叫牌
-        public static final int KouTing = 3; // --扣听
-        public static final int Ting = 4; // --听
-        public static final int Hu = 5; // --胡
-    }
-
-
 
     public class CreateRoomType{
         public static final int playerSize1 = 1;//人数-4人
         public static final int playerSize2 = 1<<1;//人数-3人
         public static final int playerSize3 = 1<<2;//人数-2人
-        public static final int payType1 = 1<<3;//冠军房费
-        public static final int payType2 = 1<<4;//房主房费
-        public static final int maxFan1 = 1<<5;//封顶3番
-        public static final int maxFan2 = 1<<6;//封顶4番
-        public static final int maxFan3 = 1<<7;//封顶5番
-        public static final int gui_zj_1 = 1<<8;//自贡鬼数第一项(0鬼)
-        public static final int gui_zj_2 = 1<<9;//自贡鬼数第二项(2鬼)
-        public static final int gui_zj_3 = 1<<10;//自贡鬼数第三项(4鬼)
-        public static final int DianGang_ZiMo=1<<11;//点杠花（自摸）
-        public static final int DianGang_DianPao=1<<12;//点杠花（点炮）
+        public static final int canChiHu = 1<<3;//可吃胡(可点炮胡)
+        public static final int onlyZiMo = 1<<4;//只能自摸
+        public static final int maxFan1 = 1<<5;//封顶5番
+        public static final int maxFan2 = 1<<6;//封顶10番
+        public static final int liujuSuanGang = 1<<8;//流局算杠
+        public static final int gangBaoQuanBao = 1<<9;//杠爆全包
+        public static final int lianZhuang = 1<<10;//连庄
+        public static final int wuZi=1<<11;//无字
+        public static final int wuFeng=1<<12;//无风
+        public static final int maiWuMa=1<<13;//无马
+        public static final int maiMa1=1<<14;//2马
+        public static final int maiMa2=1<<15;//4马
+        public static final int maiMa3=1<<16;//8马
+        public static final int zhuaMaWu=1<<17;//抓马无
+        public static final int zhuaMa1=1<<18;//抓马1
+        public static final int zhuaMa2=1<<19;//抓马2
     }
 
 
@@ -213,15 +165,6 @@ public class MJGameType {
             return -1;
         }
         return huPlugin2HuType.get(winType);
-    }
-
-    public static HashSet<Integer> getKaikouType(){
-        HashSet<Integer> kaiKouType = new HashSet<>();
-        kaiKouType.add(PlayType.Chi);
-        kaiKouType.add(PlayType.Pong);
-        kaiKouType.add(PlayType.Kong);
-        kaiKouType.add(PlayType.DotKong);
-        return kaiKouType;
     }
 
 

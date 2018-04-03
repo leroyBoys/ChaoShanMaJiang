@@ -15,19 +15,16 @@ import com.rafo.chess.engine.majiang.MahjongEngine;
 import com.rafo.chess.engine.majiang.action.BaseMajongPlayerAction;
 import com.rafo.chess.engine.majiang.action.HuAction;
 import com.rafo.chess.engine.majiang.action.IEMajongAction;
-import com.rafo.chess.engine.majiang.action.TingAction;
 import com.rafo.chess.engine.majiang.service.MJGameService;
 import com.rafo.chess.engine.robot.MjRobotAction;
 import com.rafo.chess.engine.robot.RetMjBattleStep;
 import com.rafo.chess.engine.vote.VoteExecutor;
-import com.rafo.chess.handlers.admin.AdminCmd;
 import com.rafo.chess.model.IPlayer;
 import com.rafo.chess.model.IPlayer.PlayState;
 import com.rafo.chess.model.battle.BattleStepRES;
 import com.rafo.chess.model.battle.CanHuCardAndRate;
 import com.rafo.chess.teahouse.TeaHouse;
 import com.rafo.chess.template.impl.RoomSettingTemplateGen;
-import com.rafo.chess.utils.DateTimeUtil;
 import org.nutz.json.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +95,7 @@ public class GameRoom<C extends IECardModel> {
     /***
 	 * 房间属性
 	 */
-	private HashMap<String, Object> attributeMap = new HashMap<String, Object>();
+	private HashMap<RoomAttributeConstants, Object> attributeMap = new HashMap<>();
 	private Map<Integer, BattleStepRES> results = new HashMap<>();
 
 	private GameRule gameRule;
@@ -118,21 +115,21 @@ public class GameRoom<C extends IECardModel> {
 	protected SubCard subCard = new SubCardDefault();
 	private boolean isCheckTing;
 	private MJGameService mjGameService;
-	private int hongZhongCount;//红中数量
+	private int extraCardModue = 1;//额外新加排斥模式0:无新加，1:增加万；2：增加东西南北中发白
 
 	private int canHuCardCheckPlayerId=0;
 	/** 胡牌提示数据*/
 	private Map<Integer, List<CanHuCardAndRate>> canHuCardMap=new HashMap<Integer, List<CanHuCardAndRate>>();
 
-	public void addAttribute(String key, Object value) {
+	public void addAttribute(RoomAttributeConstants key, Object value) {
 		attributeMap.put(key, value);
 	}
 
-	public Object getAttribute(String key) {
+	public Object getAttribute(RoomAttributeConstants key) {
 		return attributeMap.get(key);
 	}
 
-	public boolean hasIntAttribute(String key){
+	public boolean hasIntAttribute(RoomAttributeConstants key){
 		if(attributeMap.containsKey(key)){
 			return (Integer)attributeMap.get(key) == 1? true : false;
 		}
@@ -167,9 +164,13 @@ public class GameRoom<C extends IECardModel> {
 			nextBankUid = banker.getUid();
 		}
 
-		if(nextBankUid == this.getBankerUid()){
+		if(nextBankUid == this.getBankerUid()){//连庄
+			if((getType() & MJGameType.CreateRoomType.lianZhuang) == MJGameType.CreateRoomType.lianZhuang){
+				banker.setContinueBankCount(banker.getContinueBankCount()+1);
+			}
 			return;
 		}
+		banker.setContinueBankCount(0);
 
 		this.setBankerUid(banker.getUid());
 		this.setNextBankerUid(banker.getUid());
@@ -306,15 +307,8 @@ public class GameRoom<C extends IECardModel> {
 	}
 
 	public int nextFocusIndex() {
-
-		for(int i = 0;i<playerArr.length;i++){
-			focusIndex = ++focusIndex == playerArr.length ? 0 : focusIndex;
-			if(playerArr[focusIndex].isHavHu()){
-				continue;
-			}
-			return focusIndex;
-		}
-		return -1;
+		focusIndex = ++focusIndex == playerArr.length ? 0 : focusIndex;
+		return focusIndex;
 	}
 
 	public MJPlayer[] getPlayerArr() {
@@ -521,7 +515,7 @@ public class GameRoom<C extends IECardModel> {
 	 * @return
 	 */
 	public int getTotalRound() {
-		int count = (int)getAttribute(RoomAttributeConstants.GY_GAME_ROUND_COUNT_TYPE);
+		int count = (int)getAttribute(RoomAttributeConstants.Round);
 		RoomSettingTemplateGen.RoundData roundData = getRoundData(count);
 		return roundData.getTotalCount();
 	}
@@ -535,7 +529,9 @@ public class GameRoom<C extends IECardModel> {
 	}
 
     public boolean isTargetLiuJu() {
-        return getEngine().getCardPool().size() <= 0;
+		int maiMa = (int) this.getAttribute(RoomAttributeConstants.MaiMa);
+		int remain = this.getEngine().getCardPool().size();
+		return remain == 0 || remain<=maiMa;
     }
 
 	private IEPlayerAction lastAction;//最近的非过action,如吃碰杠摸打
@@ -548,28 +544,47 @@ public class GameRoom<C extends IECardModel> {
 		this.lastAction = lastAction;
 	}
 
-	public boolean isGameOver() {
-		switch (playerArr.length){
-			case 3:
-				return getLastWinner().length() == 2;
-			case 4:
-				return getLastWinner().length() >= 3;
-			default:
-				return false;
-		}
-	}
-
     public int getMaxFan() {
-		Object obj = getAttribute(RoomAttributeConstants.maxFan);
-        return obj == null ?0: (int) obj;
+		return 0;
     }
 
     public int getType() {
-		Object obj = getAttribute(RoomAttributeConstants.GAME_PLAY_TYPE);
+		Object obj = getAttribute(RoomAttributeConstants.Type);
 		return obj == null ?0: (int) obj;
     }
 
-    /** 房间状态 */
+    public boolean isCanDianPao() {
+        return hasIntAttribute(RoomAttributeConstants.CanDianPao);
+    }
+
+	/**
+	 * 获得与庄家的相对索引位置
+	 * @param playerUid
+	 * @return
+	 */
+	public int getIdexDifBank(int playerUid) {
+		int bankIdex = playerMap.get(bankerUid).getIndex();
+		int myIdex = playerMap.get(playerUid).getIndex();
+
+		if(bankIdex  > myIdex){
+			return playerArr.length-bankIdex+myIdex;
+		}
+		return myIdex - bankIdex;
+	}
+
+	/**
+	 * 未胡玩家是否计算杠分
+	 * @param toUid
+	 * @return
+	 */
+	public boolean isJiSuanGang(int toUid) {
+		if(lastWinner.contains(toUid)){
+			return true;
+		}
+		return this.hasIntAttribute(RoomAttributeConstants.LiuJuSuanGang);
+	}
+
+	/** 房间状态 */
 	public enum RoomState {
 		Idle(0),
 		seating(1), //首局定位置
@@ -845,12 +860,12 @@ public class GameRoom<C extends IECardModel> {
 		this.canHuCardCheckPlayerId = canHuCardCheckPlayerId;
 	}
 
-	public int getHongZhongCount() {
-		return hongZhongCount;
+	public int getExtraCardModue() {
+		return extraCardModue;
 	}
 
-	public void setHongZhongCount(int hongZhongCount) {
-		this.hongZhongCount = hongZhongCount;
+	public void setExtraCardModue(int extraCardModue) {
+		this.extraCardModue = extraCardModue;
 	}
 
 	public Map<Integer, List<CanHuCardAndRate>> getCanHuCardMap() {

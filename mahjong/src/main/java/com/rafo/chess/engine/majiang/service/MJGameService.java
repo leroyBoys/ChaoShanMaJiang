@@ -17,7 +17,6 @@ import com.rafo.chess.engine.majiang.MahjongEngine;
 import com.rafo.chess.engine.majiang.action.*;
 import com.rafo.chess.engine.room.AgentRoomStatus;
 import com.rafo.chess.engine.room.GameRoom;
-import com.rafo.chess.engine.room.RoomAttributeConstants;
 import com.rafo.chess.engine.room.RoomHelper;
 import com.rafo.chess.model.GateResponse;
 import com.rafo.chess.model.IPlayer;
@@ -646,37 +645,7 @@ public class MJGameService {
 							for (CardGroup cg : cardGroups) {
 								CardBalance cardBlance = new CardBalance();
 								cardBlance.setType(cg.getGType());
-								if(cg.getGType()==MJGameType.PlayType.TieGuiBuZhongGang){
-
-									cardBlance.setCard(cg.getCardsList().get(0)*1000000+cg.getCardsList().get(1)*10000+cg.getCardsList().get(2)*100+cg.getCardsList().get(3));
-								}else if(cg.getGType()==MJGameType.PlayType.TieGuiAnGang||
-										cg.getGType()==MJGameType.PlayType.TieGuiMingGang||
-										cg.getGType()==MJGameType.PlayType.TieGuiBuGang){
-
-
-									int cardValue=0;
-									int zhongCount=0;
-									int feizhongCardValue=0;
-									for(Integer mmj:cg.getCardsList()) {
-										if(mmj==45) {
-											zhongCount++;
-										}else {
-											feizhongCardValue=mmj;
-										}
-									}
-
-									if(zhongCount==3) {
-										cardValue=feizhongCardValue*1000000+45*10000+45*100+45;
-									}else if(zhongCount==2) {
-										cardValue=feizhongCardValue*1000000+feizhongCardValue*10000+45*100+45;
-									}else {
-										cardValue=feizhongCardValue*1000000+feizhongCardValue*10000+feizhongCardValue*100+45;
-									}
-
-									cardBlance.setCard(cardValue);
-								} else {
-									cardBlance.setCard(cg.getCardsList().get(0));
-								}
+								cardBlance.setCard(cg.getCardsList().get(0));
 								balance.addBalances(cardBlance);
 							}
 						}
@@ -891,10 +860,7 @@ public class MJGameService {
 	 * card
 	 */
 	private void addStepCard(List<Integer> cards, int playType, int card, String toBeCards) {
-		if (playType == MJGameType.PlayType.CanReadyHand || playType == MJGameType.PlayType.ReadyHand|| playType == MJGameType.PlayType.CanTieGuiMingGang
-				|| playType == MJGameType.PlayType.CanTieGuiBuZhongGang
-				|| playType == MJGameType.PlayType.CanTieGuiAnGang
-				|| playType == MJGameType.PlayType.CanTieGuiBuGang) {
+		if (playType == MJGameType.PlayType.CanReadyHand || playType == MJGameType.PlayType.ReadyHand) {
 			if(!toBeCards.trim().isEmpty()){
 				String[] toCards = toBeCards.split(",");
 

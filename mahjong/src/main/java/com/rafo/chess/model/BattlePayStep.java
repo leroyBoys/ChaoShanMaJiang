@@ -82,15 +82,15 @@ public class BattlePayStep {
 
     public void addMultipleScoreDetail(int[] fromIds, int subType, int rate){
         this.fromUids = fromIds;
-      /*  if(rate == 0){
+        if(rate == 0){
             return;
-        }*/
+        }
 
         Integer multiRate = multipleRateTotal.get(subType);
         if(multiRate == null){
             multipleRateTotal.put(subType, rate);
         }else{
-            multipleRateTotal.put(subType, rate+multiRate);
+            multipleRateTotal.put(subType, rate*multiRate);
         }
     }
 
@@ -112,31 +112,30 @@ public class BattlePayStep {
         this.gainTotal = 0;
         this.lostTotal.clear();
 
-        int multiRate = 0;
+        int multiRate = 1;
         for(Integer rate : multipleRateTotal.values()){
-            multiRate += rate;
+            multiRate *= rate;
         }
-
         this.allFan = multiRate;
-        //TODO: 最大番数限制
-        int maxFanObj = room.getMaxFan();
-        //   maxfanobj = 0;//测试暂时不限制番数
 
         int addRate = 0;
         for(Integer rate : addRateTotal.values()){
             addRate += rate;
         }
 
+        int baseAddRate = addRate;
+
+        //TODO: 最大番数限制
+        int maxFanObj = room.getMaxFan();
+        //   maxfanobj = 0;//测试暂时不限制番数
+
+
+
         this.gainTotal = 0;
         for(int uid : fromUids){
             int scoreAll = addRate;
             int curMultiRate = multiRate;
 
-            MJPlayer player = room.getPlayerById(uid);
-
-            if(this.getType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_HU && player.isTing()){//查叫的时候，针对报叫的需要加一番
-                curMultiRate += 1;
-            }
             int maxMultiRate = maxFanObj == 0?curMultiRate:Math.min(maxFanObj,curMultiRate);
             if(!multipleRateTotal.isEmpty()){
                 scoreAll += (1<<maxMultiRate);

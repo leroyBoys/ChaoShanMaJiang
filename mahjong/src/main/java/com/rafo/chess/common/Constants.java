@@ -74,12 +74,4 @@ public class Constants {
 
 	public static Gson gson = new Gson();
 
-	public static HashSet<Integer> JIANGSET;
-
-	static {
-		JIANGSET = new HashSet<>();
-		JIANGSET.add(2);
-		JIANGSET.add(5);
-		JIANGSET.add(8);
-	}
 }

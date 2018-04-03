@@ -4,20 +4,25 @@ import java.util.*;
 
 import com.rafo.chess.engine.action.AbstractActionMediator;
 import com.rafo.chess.engine.game.MJGameType;
-import com.rafo.chess.engine.majiang.*;
-import com.rafo.chess.engine.plugin.*;
-import com.rafo.chess.engine.plugin.impl.zj.HuQiDuiPlugin;
+import com.rafo.chess.engine.majiang.CardGroup;
+import com.rafo.chess.engine.majiang.MahjongEngine;
+import com.rafo.chess.engine.plugin.IOptHuTipFanPlugin;
+import com.rafo.chess.engine.plugin.impl.cs.HuQiDuiPlugin;
 import com.rafo.chess.model.battle.CanHuCardAndRate;
 import com.rafo.chess.model.battle.HuInfo;
 import com.rafo.chess.model.battle.PlayerCardInfo;
 import com.rafo.chess.utils.GhostMJHuUtils;
-import org.nutz.json.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.rafo.chess.engine.action.IEPlayerAction;
 import com.rafo.chess.model.IPlayer;
 import com.rafo.chess.engine.gameModel.factory.GameModelFactory;
 import com.rafo.chess.engine.gameModel.factory.GameModelFactory.CardType;
+import com.rafo.chess.engine.majiang.MJCard;
+import com.rafo.chess.engine.majiang.MJPlayer;
+import com.rafo.chess.engine.plugin.IOptPlugin;
+import com.rafo.chess.engine.plugin.IPluginCheckCanExecuteAction;
+import com.rafo.chess.engine.plugin.OptPluginFactory;
 import com.rafo.chess.engine.plugin.impl.HuPlugin;
 import com.rafo.chess.engine.room.GameRoom;
 import com.rafo.chess.engine.room.RoomManager;
@@ -30,21 +35,29 @@ public class ActionManager {
 	public static boolean huCheck(IPlayer pTemp, IEPlayerAction act) {
 		GameRoom gameRoom = act.getRoomInstance();
 		MJPlayer player = (MJPlayer) pTemp;
-		if(player.isHavHu()){//已胡
-			return false;
-		}
 
 		ArrayList<MJCard> handlistTemp = new ArrayList<MJCard>();
 		handlistTemp.addAll(player.getHandCards().getHandCards());
 		if(act.getActionType() != IEMajongAction.PLAYER_ACTION_TYPE_CARD_GETIN){
-            MJCard card = (MJCard) GameModelFactory.createCard(act.getCard(), CardType.CARD_MAJIANG.getFlag());
-            handlistTemp.add(card);
-
-			/*if((player.isTing() && player.getPassHuCard()>0) || player.getPassHuCard() == act.getCard()){
+			if(!gameRoom.isCanDianPao()){
 				return false;
-			}*/
+			}
+
+			MJCard card = (MJCard) GameModelFactory.createCard(act.getCard(), CardType.CARD_MAJIANG.getFlag());
+			handlistTemp.add(card);
+
 			if(player.getPassHuCard()>0){
 				return false;
+			}
+
+			if(act.getActionType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG){
+				if(act.getSubType() == MJGameType.PlayType.CealedKong){//暗杠
+					if(!GhostMJHuUtils.YouJiuArea.contains(act.getCard()) || !GhostMJHuUtils.checkIsMayBe13(handlistTemp)){
+						return false;
+					}
+				}else if(act.getSubType() != MJGameType.PlayType.Kong){
+					return false;
+				}
 			}
 		}
 
@@ -84,10 +97,6 @@ public class ActionManager {
 			return;
 
 		MJPlayer player = (MJPlayer) pTemp;
-		if(player.isTing() || player.isHavHu()){//胡，听玩家不能吃
-			return;
-		}
-
 		ArrayList<IOptPlugin> pluginList = OptPluginFactory.createPluginListByActionType(
 				IEMajongAction.PLAYER_ACTION_TYPE_CARD_CHI, act.getRoomInstance().getRstempateGen().getTempId());
 		for (IOptPlugin pluginTemp : pluginList) {
@@ -107,7 +116,7 @@ public class ActionManager {
 			return;
 
 		MJPlayer player = (MJPlayer) pTemp;
-		if(player.isTing() || player.isHavHu() || player.getPassCard() == act.getCard()|| 45 == act.getCard()){//胡，听玩家不能碰
+		if(player.getPassCard() == act.getCard()){//胡，听玩家不能碰
 			return;
 		}
 
@@ -127,11 +136,18 @@ public class ActionManager {
 
 	// 是否是杠
 	public static void gangCheck(IPlayer pTemp, IEPlayerAction act) {
-		MJPlayer player = (MJPlayer) pTemp;
-		if(player.isHavHu() || act.getCard() != 0 && player.getPassCard() == act.getCard()){
-			return;
+		GameRoom gameRoom = act.getRoomInstance();
+		if(pTemp.getUid() != act.getPlayerUid()){//其他的点杠
+
+			MJPlayer player = (MJPlayer) pTemp;
+			if(act.getCard() != 0 && player.getPassCard() == act.getCard()){
+				return;
+			}
 		}
 
+		if(gameRoom.isTargetLiuJu()){
+			return;
+		}
 
 		ArrayList<IOptPlugin> pluginList = OptPluginFactory.createPluginListByActionType(
 				IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG, act.getRoomInstance().getRstempateGen().getTempId());
@@ -173,9 +189,6 @@ public class ActionManager {
 	}
 
 	public static void tingCheck(MJPlayer player) {
-		if(player.isTing() || player.isHavHu()){
-			return;
-		}
 
 		GameRoom gameRoom = RoomManager.getRoomByRoomid(player.getRoomId());
 		ArrayList<IOptPlugin> pluginList = OptPluginFactory.createPluginListByActionType(
@@ -284,85 +297,36 @@ public class ActionManager {
 			LinkedList<MJCard> handlistTemp = new LinkedList<>(hands);
 			MJCard card = (MJCard) GameModelFactory.createCard(cardNum, GameModelFactory.CardType.CARD_MAJIANG.getFlag());
 			handlistTemp.add(card);
-			BaseHuRate baseHuRate = checkHuReturn(handlistTemp,player.getHandCards().getOpencards(),cardNum,player);
-			if(baseHuRate != null){
-				jiaoZuiMap.put(cardNum,baseHuRate);
+			BaseHuRate optPlugin = checkHuReturn(handlistTemp,player.getHandCards().getOpencards(),cardNum,player);
+			if(optPlugin != null){
+				jiaoZuiMap.put(cardNum,optPlugin);
 			}
 		}
 
 		return jiaoZuiMap;
 	}
 
-	public static IOptPlugin getHuPluginByHuInfo(GameRoom room,HuInfo huInfo){
-		List<IOptPlugin> pluginList = getHuPlugin(room);
-
-		IOptPlugin returnPlugin = null;
-		for (IOptPlugin iOptPlugin : pluginList) {
-			if(iOptPlugin instanceof IPluginCheckCanExecuteAction){
-				if (((HuPlugin)iOptPlugin).checkExecute(null,huInfo)) {
-					returnPlugin = iOptPlugin;
-				}
-			}
-		}
-		return returnPlugin;
-	}
-
 	public static BaseHuRate checkHuReturn(List<MJCard> handlistTemp, ArrayList<CardGroup> groups,int initCardNum,MJPlayer player){
-		PlayerCardInfo playerCardInfo = new PlayerCardInfo(handlistTemp, groups,45, initCardNum);
-
-		List<HuInfo> huInfos = GhostMJHuUtils.checkHu(playerCardInfo);
-		if(huInfos.size() == 0){
+		PlayerCardInfo playerCardInfo = new PlayerCardInfo(handlistTemp,groups,initCardNum);
+		HuInfo huInfo = GhostMJHuUtils.checkHu(playerCardInfo);
+		if(huInfo == null){
 			return null;
-		}else if(huInfos.size() == 1){
-			HuInfo huInfo = huInfos.get(0);
-
-			IOptPlugin maxPlugin = getHuPluginByHuInfo(RoomManager.getRoomById(player.getRoomId()),huInfo);
-			if(maxPlugin == null){
-				logger.error("exception  errror :huInfo:"+ Json.toJson(huInfo)+" cant find match plugin");
-				return null;
-			}
-			return new BaseHuRate(huInfo,maxPlugin);
 		}
 
-		IOptPlugin tmpPlugin = null;
-		IOptPlugin maxPlugin = null;
-		HuInfo maxHuInfo = null;
+		huInfo.setPlayerCardInfo(playerCardInfo);
 
-		GameRoom room=RoomManager.getRoomById(player.getRoomId());
-		/** 获取所有胡牌行为相关的插件*/
-		List<IOptPlugin> pluginList = getHuPlugin(room);
-		for(HuInfo huInfo : huInfos){
+		GameRoom gameRoom = RoomManager.getRoomById(player.getRoomId());
+		List<IOptPlugin> pluginList = getHuPlugin(gameRoom);
+		for (IOptPlugin pluginTemp : pluginList) {
+			if ((pluginTemp instanceof IPluginCheckCanExecuteAction)) {
+				HuPlugin plugin = (HuPlugin) pluginTemp;
 
-			int rate = 0;
-			for (IOptPlugin iOptPlugin : pluginList) {
-				if(iOptPlugin instanceof IPluginCheckCanExecuteAction){
-					if (((HuPlugin)iOptPlugin).checkExecute(player,huInfo)) {
-						tmpPlugin = iOptPlugin;
-						rate+=getRate(iOptPlugin);
-					}
-				}else if(iOptPlugin instanceof IOptLiuJuRatePlugin){
-					rate+=getRate(iOptPlugin);
+				if (plugin.checkExecute(player,huInfo)) {
+					return new BaseHuRate(huInfo,plugin);
 				}
 			}
-
-			if(maxHuInfo == null || rate > maxHuInfo.getRate()){
-				maxHuInfo = huInfo;
-				maxHuInfo.setRate(rate);
-				maxPlugin = tmpPlugin;
-			}
 		}
-
-		return new BaseHuRate(maxHuInfo,maxPlugin);
-	}
-
-	private static Integer getRate(IOptPlugin optPlugin) {
-		String effectStr = optPlugin.getGen().getEffectStr();
-		if(effectStr == null||effectStr.trim().isEmpty()){
-			return 0;
-		}
-		String[] arr = effectStr.split(",");
-		int rate = Integer.parseInt(arr[1]);
-		return rate;
+		return null;
 	}
 
 	public static Map<Integer, Integer> cardColorCount(MJPlayer player){
@@ -389,13 +353,36 @@ public class ActionManager {
 
 	/**
 	 * 取全部胡牌插件
-	 * @param room
+	 * @param gameRoom
 	 * @return
 	 */
 	private static ArrayList<IOptPlugin> getHuPlugin(GameRoom gameRoom){
 		ArrayList<IOptPlugin> allHuPluginList = OptPluginFactory.createPluginListByActionType(
 				IEMajongAction.PLAYER_ACTION_TYPE_CARD_HU, gameRoom.getRstempateGen().getTempId());
-		return allHuPluginList;
+
+		ArrayList<IOptPlugin> huPluginList = new ArrayList<>();
+		for(IOptPlugin plugin : allHuPluginList){
+			if ((plugin instanceof IPluginCheckCanExecuteAction)) {
+				huPluginList.add(plugin);
+			}
+		}
+
+		Collections.sort(huPluginList, new Comparator<IOptPlugin>() {
+			@Override
+			public int compare(IOptPlugin o1, IOptPlugin o2) {
+				int rate1 = Integer.parseInt(o1.getGen().getEffectStr().split(",")[1]);
+				int rate2 = Integer.parseInt(o2.getGen().getEffectStr().split(",")[1]);
+
+				if(rate1 == rate2){
+					return o2.getGen().getTempId() - o1.getGen().getTempId();
+				}
+
+				return rate2 - rate1;
+
+			}
+		});
+
+		return huPluginList;
 	}
 
 	/**
@@ -461,10 +448,6 @@ public class ActionManager {
 	}
 
 	public static boolean isCanGangWithOutChangeHuType(MJPlayer pTemp, List<MJCard> hands) {
-		if(pTemp.isHavHu() || !pTemp.isTing()){
-			return true;
-		}
-
 		Map<Integer,BaseHuRate> jiaoZuiMap = jiaozuiCheck(hands,pTemp,pTemp.getTingHuCards());
 		if(jiaoZuiMap == null || jiaoZuiMap.isEmpty()){
 			return false;
@@ -489,103 +472,6 @@ public class ActionManager {
 	 * @param act
 	 */
 	public static void checkHuCardTip(MJPlayer player,GameRoom room,IEPlayerAction act) {
-		if(!room.getCanHuCardMap().isEmpty()){
-			room.getCanHuCardMap().clear();
-		}
-		room.setCanHuCardCheckPlayerId(player.getUid());
-
-		if(player.isTing() || player.isHavHu()) {
-			return;
-		}
-		AbstractActionMediator mediator = room.getEngine().getMediator();
-		ArrayList<IEPlayerAction> actions = mediator.getCanExecuteActionByStep(mediator.getCurrentStep());
-		if(actions.size() > 1){//除了打操作还有其他的操作的时候不做提示
-			return;
-		}
-
-		HuAction huAction = null;
-		actions = mediator.getCanExecuteActionByStep(mediator.getCurrentStep()-1);
-		if(actions != null && !actions.isEmpty()){
-
-			for(IEPlayerAction action:actions){
-				if(action.getPlayerUid() == player.getUid()){
-					if(action.getActionType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_HU){
-						huAction = (HuAction)action;
-						break;
-					}
-				}
-			}
-		}
-	//	System.out.println("====>roomId:"+room.getRoomId()+"playUid:"+player.getUid()+",step:"+mediator.getCurrentStep()+",last isHu:"+(huAction != null));
-
-		/** 牌池中剩余的牌数量对应关系,key=麻将代码,value=剩余数量*/
-		Map<Integer,Integer> surplusCardMap=getCanUsedCard(player.getUid(),room);
-
-		ArrayList<MJCard> hands = player.getHandCards().getHandCards();
-		Set<Integer> handsSet = new HashSet<>();
-		for(MJCard mjCard:hands){
-			if(handsSet.contains(mjCard.getCardNum())){
-				continue;
-			}
-			handsSet.add(mjCard.getCardNum());
-		}
-
-		Map<Integer, List<CanHuCardAndRate>> huTipMap = room.getCanHuCardMap();  //胡牌提示
-		int cardNum;
-		int cardCount;
-		List<CanHuCardAndRate> canHuCardAndRates;
-		/** 胡牌测试*/
-		for (Integer outCard : handsSet) {
-			canHuCardAndRates=new ArrayList<>();
-
-			LinkedList<MJCard> handlistTemp = new LinkedList<>();
-			{
-				boolean isChecked = false;
-				for (MJCard card : hands) {
-					if (isChecked || outCard != card.getCardNum()) {
-						handlistTemp.add(card);
-					} else if (!isChecked) {
-						isChecked = true;
-					}
-				}
-			}
-
-			for (Map.Entry<Integer,Integer> entry:surplusCardMap.entrySet()) {
-				cardNum = entry.getKey();
-				if(huAction != null){//已胡
-					if(cardNum == outCard.intValue()){
-						CanHuCardAndRate canHuCardAndRate=new CanHuCardAndRate();
-						canHuCardAndRate.setCanHuCard(cardNum);
-						canHuCardAndRate.setHuCardMun(entry.getValue());
-						canHuCardAndRate.setHuRate(getFanShu(room,player,huAction.getHuInfo()));
-						canHuCardAndRates.add(canHuCardAndRate);
-						continue;
-					}
-				}else if(cardNum == outCard.intValue()){
-					continue;
-				}
-
-				if(!handsSet.contains(cardNum) && !handsSet.contains(cardNum+1) && !handsSet.contains(cardNum-1)){
-					continue;
-				}
-				MJCard card = (MJCard) GameModelFactory.createCard(cardNum, GameModelFactory.CardType.CARD_MAJIANG.getFlag());
-				handlistTemp.add(card);
-				BaseHuRate baseHuRate = checkHuReturn(handlistTemp,player.getHandCards().getOpencards(),cardNum,player);
-				if(baseHuRate != null){
-					CanHuCardAndRate canHuCardAndRate=new CanHuCardAndRate();
-					canHuCardAndRate.setCanHuCard(cardNum);
-					canHuCardAndRate.setHuCardMun(entry.getValue());
-					canHuCardAndRate.setHuRate(getFanShu(room,player,baseHuRate.getHuInfo()));
-					canHuCardAndRates.add(canHuCardAndRate);
-				}
-
-				handlistTemp.removeLast();//恢复初始值
-			}
-
-			if(canHuCardAndRates.size()>0) {
-				huTipMap.put(outCard,canHuCardAndRates);
-			}
-		}
 	}
 
 	private static int getFanShu(GameRoom gameRoom,MJPlayer player,HuInfo huInfo){
