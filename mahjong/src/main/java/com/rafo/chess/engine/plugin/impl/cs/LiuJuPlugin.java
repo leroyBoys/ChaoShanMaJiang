@@ -41,6 +41,7 @@ public class LiuJuPlugin implements IOptPlugin<DealerLiujuAction> {
 		GameRoom room = action.getRoomInstance();
 		action.getRoomInstance().setRoomStatus(RoomState.calculated.getValue());
 
+		///没有叫嘴
 		if (!analysis(action)) {
 			return;
 		}
