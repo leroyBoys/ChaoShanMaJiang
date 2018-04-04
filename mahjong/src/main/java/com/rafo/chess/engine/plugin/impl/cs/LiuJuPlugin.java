@@ -38,12 +38,12 @@ public class LiuJuPlugin implements IOptPlugin<DealerLiujuAction> {
 
 	@Override
 	public void doOperation(DealerLiujuAction action) {
+		GameRoom room = action.getRoomInstance();
+		action.getRoomInstance().setRoomStatus(RoomState.calculated.getValue());
+
 		if (!analysis(action)) {
 			return;
 		}
-
-		GameRoom room = action.getRoomInstance();
-		action.getRoomInstance().setRoomStatus(RoomState.calculated.getValue());
 
 		/** 黄庄查叫逻辑*/
 		chaJiao(action);
@@ -128,7 +128,7 @@ public class LiuJuPlugin implements IOptPlugin<DealerLiujuAction> {
 
 	}
 	public boolean analysis(DealerLiujuAction action) {
-		return true;
+		return false;
 	}
 
 	@Override

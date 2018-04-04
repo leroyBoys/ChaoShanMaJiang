@@ -94,7 +94,7 @@ public abstract class HmHuPlugin extends HuPlugin {
 
 	public static void checkJiaoZui(GameRoom room){
 		room.setRoomStatus(GameRoom.RoomState.calculated.getValue());
-		List<IPlayer> others = room.getAllPlayer();
+	/*	List<IPlayer> others = room.getAllPlayer();
 		for (IPlayer other : others) {
 			MJPlayer p = (MJPlayer) other;
 
@@ -106,7 +106,7 @@ public abstract class HmHuPlugin extends HuPlugin {
 			Map.Entry<Integer,BaseHuRate> entry = jiaoZui.entrySet().iterator().next();
 			p.setJiaozui(new JiaoZuiData(entry.getKey(),entry.getValue()));
 			continue;
-		}
+		}*/
 	}
 
 	@Override

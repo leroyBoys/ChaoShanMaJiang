@@ -138,9 +138,9 @@ public class Calculator {
 			}
 
 			//所有的失分明细
-			for(Map.Entry<Integer, List<BattleScore>> battleLostScore : lostDetail.entrySet()){
+		/*	for(Map.Entry<Integer, List<BattleScore>> battleLostScore : lostDetail.entrySet()){
 				userBattleBalances.get(battleLostScore.getKey()).addBattleScores(battleLostScore.getValue());
-			}
+			}*/
 
 		}catch (Exception e){
 			e.printStackTrace();
@@ -305,6 +305,13 @@ public class Calculator {
 				logger.debug("finalscore room:" + room.getRoomId() + ",round:"+room.getCurrRounds() + ",bankerId:"+bankerId+"," +battlePayStep.log());
 
 				battlePayStep.toBattleScore(room);
+
+				List<BattleScore> scores = gainDetail.get(battlePayStep.getToUid());
+				if(scores == null){
+					scores = new ArrayList<>();
+					gainDetail.put(battlePayStep.getToUid(),scores);
+				}
+				scores.addAll(battlePayStep.getBattleScore().getDetail());
 
 				//玩家的失分汇总
 				for(Map.Entry<Integer, Integer> userLostScore: battlePayStep.getScoreChangeDetail().entrySet()) {
