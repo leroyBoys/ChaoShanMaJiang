@@ -770,6 +770,7 @@ public class MJGameService {
 		battleData.getBattleCensuss().addAll(majiang.getCalculator().getBattleCensuss().values());
 		battleData.getBattleBalances().addAll(majiang.getCalculator().getUserBattleBalances().values());
 		battleData.setWinerList(room.getLastWinner().getList());
+		battleData.getMaiMaCards().addAll(majiang.getCalculator().getMaiMaCards());
 
 		convertBattleDataToOldClient(battleData);
 		ArrayList<MJPlayer> players = room.getAllPlayer();

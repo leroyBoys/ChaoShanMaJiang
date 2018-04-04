@@ -30,6 +30,8 @@ public class BattleData {
     private int endTime;
     private int stepId;
 
+    private List<MaCard> maiMaCards = new ArrayList<>();//买马情况
+
     public int getBankerTime() {
 		return bankerTime;
 	}
@@ -48,6 +50,14 @@ public class BattleData {
 
     public void setStepId(int stepId) {
         this.stepId = stepId;
+    }
+
+    public List<MaCard> getMaiMaCards() {
+        return maiMaCards;
+    }
+
+    public void setMaiMaCards(List<MaCard> maiMaCards) {
+        this.maiMaCards = maiMaCards;
     }
 
     public Map<Integer, List<CanHuCardAndRate>> getHuCardTipShow() {
@@ -208,6 +218,13 @@ public class BattleData {
             obj.putSFSArray("stat", arr);
         }
 
+        if(maiMaCards.size() > 0){
+            SFSArray maiMaArray = new SFSArray();
+            for(MaCard maCard : maiMaCards){
+                maiMaArray.addSFSObject(maCard.toSFSObject());
+            }
+            obj.putSFSArray("ma", maiMaArray);
+        }
 
         if (huCardTipShow != null && huCardTipShow.size() > 0) {
            	SFSObject huCardObj = new SFSObject();
@@ -242,6 +259,14 @@ public class BattleData {
         sb.append("bt=").append(bankerTime).append(",");
         if(endTime > 0){
             sb.append("ts=").append(endTime).append(",");
+        }
+
+        if(maiMaCards.size() > 0){
+            sb.append(",ma={");
+            for(MaCard bs : maiMaCards){
+                sb.append(bs.toFormatString()).append(",");
+            }
+            sb.append("}");
         }
 
         sb.append("wl={").append(StringUtils.join(winerList, ",")).append("},");
