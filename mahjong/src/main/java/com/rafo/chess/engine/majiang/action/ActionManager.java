@@ -39,7 +39,20 @@ public class ActionManager {
 		ArrayList<MJCard> handlistTemp = new ArrayList<MJCard>();
 		handlistTemp.addAll(player.getHandCards().getHandCards());
 		if(act.getActionType() != IEMajongAction.PLAYER_ACTION_TYPE_CARD_GETIN){
-			if(!gameRoom.isCanDianPao()){
+
+			//抢暗杠胡不受吃胡选项影响（除了13幺，13幺再选吃胡时候不能抢杠胡）
+			if(act.getActionType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG){
+				if(act.getSubType() == MJGameType.PlayType.CealedKong){//暗杠
+					boolean isMayBe31 = GhostMJHuUtils.YouJiuArea.contains(act.getCard()) && GhostMJHuUtils.checkIsMayBe13(handlistTemp);
+					if(isMayBe31 && gameRoom.isCanDianPao()){//可能13幺并且能吃胡的时候不能抢杠胡
+						return false;
+					}
+				}else if(act.getSubType() != MJGameType.PlayType.Kong){
+					return false;
+				}else if(!gameRoom.isCanDianPao()){//非暗杠的时候点炮判断
+					return false;
+				}
+			}else if(!gameRoom.isCanDianPao()){//非暗杠的时候点炮判断
 				return false;
 			}
 
@@ -50,15 +63,7 @@ public class ActionManager {
 				return false;
 			}
 
-			if(act.getActionType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG){
-				if(act.getSubType() == MJGameType.PlayType.CealedKong){//暗杠
-					if(!GhostMJHuUtils.YouJiuArea.contains(act.getCard()) || !GhostMJHuUtils.checkIsMayBe13(handlistTemp)){
-						return false;
-					}
-				}else if(act.getSubType() != MJGameType.PlayType.Kong){
-					return false;
-				}
-			}
+
 		}
 
 		BaseHuRate baseHuRate = checkHuReturn(handlistTemp,player.getHandCards().getOpencards(),act.getCard(),player);
