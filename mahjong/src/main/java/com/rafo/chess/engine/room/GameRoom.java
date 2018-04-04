@@ -565,12 +565,22 @@ public class GameRoom<C extends IECardModel> {
 	public int getIdexDifBank(int playerUid) {
 		int bankIdex = playerMap.get(bankerUid).getIndex();
 		int myIdex = playerMap.get(playerUid).getIndex();
+		return getIdexDifBank(myIdex,bankIdex);
+	}
 
+	/**
+	 * 获得与庄家的相对索引位置
+	 * @param myIdex
+	 * @param bankIdex
+	 * @return
+	 */
+	public int getIdexDifBank(int myIdex,int bankIdex) {
 		if(bankIdex  > myIdex){
 			return playerArr.length-bankIdex+myIdex;
 		}
 		return myIdex - bankIdex;
 	}
+
 
 	/**
 	 * 未胡玩家是否计算杠分
@@ -582,6 +592,10 @@ public class GameRoom<C extends IECardModel> {
 			return true;
 		}
 		return this.hasIntAttribute(RoomAttributeConstants.LiuJuSuanGang);
+	}
+
+	public boolean canZhuaMa() {
+		return  this.getLastWinner().size() > 0 && (int)getAttribute(RoomAttributeConstants.ZhuaMa)>0;
 	}
 
 	/** 房间状态 */

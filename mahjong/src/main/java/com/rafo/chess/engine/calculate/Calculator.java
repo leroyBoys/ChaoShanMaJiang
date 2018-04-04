@@ -3,18 +3,12 @@ package com.rafo.chess.engine.calculate;
 import java.util.*;
 
 
-import com.rafo.chess.engine.game.MJGameType;
 import com.rafo.chess.engine.majiang.CardGroup;
 import com.rafo.chess.engine.majiang.MJCard;
 import com.rafo.chess.engine.majiang.MJPlayer;
-import com.rafo.chess.engine.majiang.action.IEMajongAction;
-import com.rafo.chess.engine.plugin.IOptPlugin;
-import com.rafo.chess.engine.plugin.IPluginCheckCanExecuteAction;
 import com.rafo.chess.model.BattlePayStep;
-import com.rafo.chess.model.battle.BattleBalance;
-import com.rafo.chess.model.battle.BattleCensus;
-import com.rafo.chess.model.battle.BattleScore;
-import com.rafo.chess.model.battle.CardBalance;
+import com.rafo.chess.model.battle.*;
+import com.rafo.chess.utils.GhostMJHuUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +29,7 @@ public class Calculator {
 	/** 结算列表 */
 	private ArrayList<PayDetail> payDetailList = new ArrayList<PayDetail>();
 
+	private List<MaCard> maiMaCards = new ArrayList<>();//买马情况
 	//每一步的算分规则详情
 	private Map<Integer, Map<Integer,BattlePayStep>> payStepMap = new TreeMap<>();//step-actionType-battleStep
 	private Map<Integer, List<BattleScore>> gainDetail = new HashMap<>();
@@ -54,10 +49,19 @@ public class Calculator {
 		payStepMap.clear();
 		gainDetail.clear();
 		lostDetail.clear();
+		maiMaCards.clear();
 	}
 
 	public ArrayList<PayDetail> getPayDetailList() {
 		return payDetailList;
+	}
+
+	public List<MaCard> getMaiMaCards() {
+		return maiMaCards;
+	}
+
+	public void setMaiMaCards(List<MaCard> maiMaCards) {
+		this.maiMaCards = maiMaCards;
 	}
 
 	public void addPayDetailed(PayDetail ratePay) {
@@ -79,6 +83,7 @@ public class Calculator {
 			for (MJPlayer player : room.getPlayerArr()) {
 				BattleBalance battleBalance = new BattleBalance();
 				battleBalance.setPlayerId(player.getUid());
+				battleBalance.setIdex(player.getIndex());
 
 				ArrayList<MJCard> handCards = player.getHandCards().getHandCards();
 				List<Integer> cards = new ArrayList<Integer>();
@@ -110,6 +115,7 @@ public class Calculator {
 				convertToPayStep(pd);
 			}
 
+			calculateZhuaMa();
 			calculateFinalScores();
 			setCardBalance();
 
@@ -141,14 +147,40 @@ public class Calculator {
 		}
 	}
 
-	public void addLostType(int uid, int type, int score, int card){
-		List<BattleScore> typeScore = lostDetail.get(uid);
-		if(typeScore == null ){
-			typeScore = new ArrayList<>();
-			lostDetail.put(uid, typeScore);
+	/**
+	 * 抓马买中统计:每个人被买中的统计
+	 */
+	private void calculateZhuaMa() {
+		if(!room.canZhuaMa()){
+			return;
 		}
-		BattleScore battleScore = new BattleScore(uid, type, score, card);
-		typeScore.add(battleScore);
+
+		int bankIdex = room.getPlayerById(room.getBankerUid()).getIndex();
+
+		final int size = room.getPlayerArr().length;
+		final Set<Integer>[] poolAreas = GhostMJHuUtils.MaArea[size-1];
+
+		Set<Integer> maCardPool;
+		MJPlayer mjPlayer;
+		for(int i = 0;i<size;i++){
+			MJPlayer player = room.getPlayerArr()[i];
+			maCardPool =  poolAreas[i == bankIdex?0:room.getIdexDifBank(i,bankIdex)];
+
+			for(int j = 0;j<size;j++){
+				int count = 0;
+				mjPlayer =room.getPlayerArr()[j];
+				for(int card:mjPlayer.getZhuaMaCards()){
+					if(maCardPool.contains(card)){
+						count++;
+						userBattleBalances.get(mjPlayer.getUid()).putMaCard(new MaCard(player,card));
+					}
+				}
+
+				if(count > 0){
+					room.getPlayerArr()[i].getMaiZhongZhuaMaMap().put(mjPlayer.getUid(),count);
+				}
+			}
+		}
 	}
 
 	public void addSpeialPayStepMap(int step,int actionType,int[] fromUids){
@@ -274,30 +306,12 @@ public class Calculator {
 
 				battlePayStep.toBattleScore(room);
 
-				//玩家的得分汇总
-				userBattleBalances.get(battlePayStep.getToUid()).addPoint(battlePayStep.getGainTotal());
-
-				userBattleBalances.get(battlePayStep.getToUid()).addFanShu(battlePayStep.getAllFan());
-				if(battlePayStep.getType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_HU){
-					userBattleBalances.get(battlePayStep.getToUid()).addHuPoint(battlePayStep.getGainTotal());
-
-					userBattleBalances.get(battlePayStep.getToUid()).addBattleScores(battlePayStep.getBattleScore().getDetail());
-				}else if(battlePayStep.getType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG){
-					userBattleBalances.get(battlePayStep.getToUid()).addGangPoint(battlePayStep.getGainTotal());
-				}
-
 				//玩家的失分汇总
-				for(Map.Entry<Integer, Integer> userLostScore: battlePayStep.getLostTotal().entrySet()) {
+				for(Map.Entry<Integer, Integer> userLostScore: battlePayStep.getScoreChangeDetail().entrySet()) {
 					int lostUid = userLostScore.getKey();
-					int score = -userLostScore.getValue();
+					int score = userLostScore.getValue();
 
 					userBattleBalances.get(lostUid).addPoint(score);
-
-					if(battlePayStep.getType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_HU){
-						userBattleBalances.get(lostUid).addHuPoint(score);
-					}else if(battlePayStep.getType() == IEMajongAction.PLAYER_ACTION_TYPE_CARD_GANG){
-						userBattleBalances.get(lostUid).addGangPoint(score);
-					}
 				}
 			}
 

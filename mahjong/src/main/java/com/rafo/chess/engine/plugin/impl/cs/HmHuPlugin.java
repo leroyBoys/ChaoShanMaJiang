@@ -130,9 +130,21 @@ public abstract class HmHuPlugin extends HuPlugin {
 		} else if (pd.getFromUids().length == 1) {
 			calculator.getBattleCensuss().get(pd.getToUid()).addWinOther(); // 接炮
 			calculator.getBattleCensuss().get(pd.getDianPlayer()).addDiscardOther(); // 点炮
-
 		}
 
+		if(room.getPlayerById(pd.getToUid()).isHavHu()){
+			BattleBalance battleBalance = calculator.getUserBattleBalances().get(pd.getToUid());
+			BattleBalance.HuStatus status = BattleBalance.HuStatus.JiePao;
+			if(pd.getDianPlayer() == 0){
+				if(room.getEngine().getCalculator().getSpeialPayStep(IEMajongAction.PLAYER_ACTION_TYPE_CARD_HU,pd.getStep()) == null){
+					status = BattleBalance.HuStatus.ZiMo;
+				}
+			}
+			battleBalance.setStatus(status);
+			battleBalance.setStatusFrom(fromPlayers);
+
+			battleBalance.setHuIndex(room.getLastWinner().getHuTurnIdex(pd.getToUid()));
+		}
 		return false;
 	}
 }

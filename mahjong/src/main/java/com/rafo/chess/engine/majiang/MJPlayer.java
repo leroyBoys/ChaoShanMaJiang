@@ -3,7 +3,6 @@ package com.rafo.chess.engine.majiang;
 
 import com.rafo.chess.engine.calculate.PayDetail;
 import com.rafo.chess.engine.majiang.action.GangAction;
-import com.rafo.chess.engine.plugin.IOptPlugin;
 import com.rafo.chess.model.IPlayer;
 
 import java.util.*;
@@ -42,6 +41,9 @@ public class MJPlayer implements IPlayer {
 	private List<Integer> sameIpAccIDs = new ArrayList<Integer>();
 	private PayDetail huPayDetail = null;
 	private List<Integer> zhuaMaCards = new ArrayList<Integer>();
+	/** 买中自己抓马的玩家id集合-抓中数量 */
+	private Map<Integer,Integer> maiZhongZhuaMaMap = new HashMap<>();
+	private CalculatorStatus status = CalculatorStatus.Null;//玩家结算时候状态：0默认（非胡牌的直接影响者和被影响者），1胡牌，2输家
 
 	public void reset(){
 		container.cleanHands();
@@ -57,6 +59,8 @@ public class MJPlayer implements IPlayer {
 		jiaoZuiPayPlayers.clear();
 		huPayDetail = null;
 		zhuaMaCards.clear();
+		maiZhongZhuaMaMap.clear();
+		status = CalculatorStatus.Null;
 	}
 
 	public int getPassCard() {
@@ -105,6 +109,14 @@ public class MJPlayer implements IPlayer {
 
 	public int getPassHuCard() {
 		return passHuCard;
+	}
+
+	public CalculatorStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(CalculatorStatus status) {
+		this.status = status;
 	}
 
 	public boolean isTieGuiOnOff() {
@@ -169,6 +181,14 @@ public class MJPlayer implements IPlayer {
 
 	public List<Integer> getZhuaMaCards() {
 		return zhuaMaCards;
+	}
+
+	public Map<Integer, Integer> getMaiZhongZhuaMaMap() {
+		return maiZhongZhuaMaMap;
+	}
+
+	public void setMaiZhongZhuaMaMap(Map<Integer, Integer> maiZhongZhuaMaMap) {
+		this.maiZhongZhuaMaMap = maiZhongZhuaMaMap;
 	}
 
 	public void setZhuaMaCards(List<Integer> zhuaMaCards) {
@@ -328,5 +348,9 @@ public class MJPlayer implements IPlayer {
 	public PayDetail getHuPayDetail() {
 
 		return huPayDetail;
+	}
+
+	public enum CalculatorStatus{
+		Null,Hu,Lose
 	}
 }

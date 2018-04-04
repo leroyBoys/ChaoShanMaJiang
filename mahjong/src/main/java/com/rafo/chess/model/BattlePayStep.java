@@ -1,7 +1,6 @@
 package com.rafo.chess.model;
 
 import com.rafo.chess.engine.majiang.MJPlayer;
-import com.rafo.chess.engine.majiang.action.IEMajongAction;
 import com.rafo.chess.engine.room.GameRoom;
 import com.rafo.chess.model.battle.BattleScore;
 
@@ -25,10 +24,10 @@ public class BattlePayStep {
     protected Map<Integer, Integer> multipleRateTotal = new HashMap<>(); //用户支付的乘法的番数汇总
     protected Map<Integer, Integer> addRateTotal = new HashMap<>(); //用户支付的加法的番数汇总
 
-    protected int gainTotal; //得分汇总
-    private Map<Integer, Integer> lostTotal = new HashMap<>(); //失分总分
+    private Map<Integer, Integer> scoreChangeDetail = new HashMap<>(); //失分总分
 
     private BattleScore battleScore = new BattleScore();
+    private StringBuilder extraLog = new StringBuilder();
 
     private int allFan;//总番数(单人)
 
@@ -68,16 +67,18 @@ public class BattlePayStep {
         this.baseRate = baseRate;
     }
 
-    public int getGainTotal() {
-        return gainTotal;
-    }
-
     public BattleScore getBattleScore() {
         return battleScore;
     }
 
-    public Map<Integer, Integer> getLostTotal() {
-        return lostTotal;
+    public Map<Integer, Integer> getScoreChangeDetail() {
+        return scoreChangeDetail;
+    }
+
+    public void addScoreChange(int uid,int score) {
+        Integer cscore = scoreChangeDetail.get(uid);
+        cscore = cscore == null?score:score+cscore;
+        this.scoreChangeDetail.put(uid,cscore);
     }
 
     public void addMultipleScoreDetail(int[] fromIds, int subType, int rate){
@@ -109,41 +110,103 @@ public class BattlePayStep {
      * @param
      */
     public void calculate(GameRoom room){
-        this.gainTotal = 0;
-        this.lostTotal.clear();
+        this.scoreChangeDetail.clear();
 
         int multiRate = 1;
         for(Integer rate : multipleRateTotal.values()){
             multiRate *= rate;
         }
-        this.allFan = multiRate;
 
+        this.allFan = multiRate;
         int addRate = 0;
         for(Integer rate : addRateTotal.values()){
             addRate += rate;
         }
 
-        int baseAddRate = addRate;
-
-        //TODO: 最大番数限制
+        //TODO: 最大基础分的封顶
         int maxFanObj = room.getMaxFan();
         //   maxfanobj = 0;//测试暂时不限制番数
+        addRate = maxFanObj>0&&addRate>maxFanObj?maxFanObj:addRate;
 
+        MJPlayer player = room.getPlayerById(toUid);
+        player.setStatus(MJPlayer.CalculatorStatus.Hu);
 
-
-        this.gainTotal = 0;
+        int gainTotal = 0;
         for(int uid : fromUids){
-            int scoreAll = addRate;
-            int curMultiRate = multiRate;
+            room.getPlayerById(uid).setStatus(MJPlayer.CalculatorStatus.Lose);
 
-            int maxMultiRate = maxFanObj == 0?curMultiRate:Math.min(maxFanObj,curMultiRate);
+            int scoreAll = addRate;
+
             if(!multipleRateTotal.isEmpty()){
-                scoreAll += (1<<maxMultiRate);
+                scoreAll *= multiRate;
+            }
+            addScoreChange(uid, -scoreAll);
+
+            gainTotal+=scoreAll;
+        }
+
+        addScoreChange(toUid, gainTotal);
+
+        if(!room.canZhuaMa()){
+            return;
+        }
+
+        //抓马中码计算
+        //对胡牌玩家
+        if(!player.getMaiZhongZhuaMaMap().isEmpty()){
+            for(Map.Entry<Integer,Integer> entry:player.getMaiZhongZhuaMaMap().entrySet()){
+                int curUid = entry.getKey();
+
+                int amountSum = 0;
+                for(int uid : fromUids){//获得同样的分数
+                    if(uid == curUid){
+                        continue;
+                    }
+
+                    int amount = addRate*entry.getValue();
+                    amountSum+=amount;
+                    addScoreChange(uid,-amount);
+
+                    extraLog.append("[to hu lose]zhong uid:").append(uid).append(",score:").append(-amount).append(",");
+                }
+
+                if(amountSum == 0){
+                    continue;
+                }
+                addScoreChange(curUid,amountSum);
+                extraLog.append("[to hu add]zhong uid:").append(curUid).append(",score:").append(amountSum).append(",");
             }
 
-            lostTotal.put(uid, scoreAll);
-            this.gainTotal+=scoreAll;
         }
+        //对被胡玩家
+
+        int amountSum = 0;
+        for(int uid : fromUids) {//失去同样的分数
+            player = room.getPlayerById(uid);
+
+            if(player.getMaiZhongZhuaMaMap().isEmpty()){
+               continue;
+            }
+
+            for(Map.Entry<Integer,Integer> entry:player.getMaiZhongZhuaMaMap().entrySet()){
+                int curUid = entry.getKey();
+                if(room.getLastWinner().contains(curUid)){//已胡玩家特权不用减分
+                    continue;
+                }
+
+                //损失同样的分数
+                int amount = addRate*entry.getValue();
+                amountSum+=amount;
+                addScoreChange(curUid,-amount);
+                extraLog.append("[to fail lose]zhong uid:").append(uid).append(", from Uid:").append(curUid).append(",score:").append(-amount).append(",");
+            }
+        }
+
+        if(amountSum == 0){
+            return;
+        }
+        addScoreChange(toUid,amountSum);
+        extraLog.append("[to fail winer] toUid:").append(toUid).append(",score:").append(amountSum);
     }
 
     public void  toBattleScore(GameRoom room){
@@ -174,14 +237,19 @@ public class BattlePayStep {
                 battleScore.addDetail(subScore);
             }
         }
-
     }
 
     public String log(){
         StringBuilder sb = new StringBuilder();
         sb.append("step:").append(this.step).append(",");
         sb.append("uid:").append(toUid).append(",");
-        sb.append("gainScore:").append(gainTotal).append(",");
+        sb.append("[gainScoreChange:").append(",");
+
+        for(Map.Entry<Integer, Integer> entry :scoreChangeDetail.entrySet()){
+            sb.append(entry.getKey()).append(",");
+            sb.append(entry.getValue()).append(" ;");
+        }
+        sb.append("  ]  ");
 
         sb.append("[multipleRateTotal:  ");
         //增加番数/加翻日志
@@ -199,7 +267,7 @@ public class BattlePayStep {
         }
         sb.append("  ]  ");
 
-        sb.append("[type  :").append(type).append(" ]");
+        sb.append("[type  :").append(type).append(" ]").append(extraLog.toString());
 
         return sb.toString();
     }

@@ -12,22 +12,17 @@ import java.util.List;
  */
 public class BattleBalance {
     private int playerId;
-    //通信时，isHu ting winType合成一个数组,
-
     private List<Integer> cards = new ArrayList<>();   // 牌
     private int winPoint;  //总积分
-    private int huIndex;
-    //   private List<Integer> dianHuList=new ArrayList<Integer>();
-    private int fanShu;
-    private int huPoint;  //胡牌积分
-    private int gangPoint;//杠牌积分
+    private int huIndex;//几胡
+    private int idex;//索引位置
     private List<CardBalance> balances = new ArrayList<>();
     private List<BattleScore> scores = new ArrayList<>();//胡牌类型集合
     //用于展示结算界面上的效果，如接炮、自摸，查叫等---来源（接炮失分玩家(点炮)，自摸失分玩家，查叫失分玩家）
     private HuStatus status = HuStatus.NULL;
     private List<Integer> statusFrom = new ArrayList<>();
+    private List<MaCard> maCards = new ArrayList<>();//抓码情况
     private SFSObject ex=new SFSObject();
-    private int huTurnIdex;//几胡
 
     public int getPlayerId() {
         return playerId;
@@ -49,41 +44,10 @@ public class BattleBalance {
         this.huIndex = huIndex;
     }
 
-    public int getHuPoint() {
-        return huPoint;
-    }
-
-    public void setHuPoint(int huPoint) {
-        this.huPoint = huPoint;
-    }
-
-    public int getGangPoint() {
-        return gangPoint;
-    }
-
-    public void setGangPoint(int gangPoint) {
-        this.gangPoint = gangPoint;
-    }
-
-    public int getFanShu() {
-        return fanShu;
-    }
-
-    public void setFanShu(int fanShu) {
-        this.fanShu = fanShu;
-    }
-
     public List<Integer> getCards() {
         return cards;
     }
 
-    public int getHuTurnIdex() {
-        return huTurnIdex;
-    }
-
-    public void setHuTurnIdex(int huTurnIdex) {
-        this.huTurnIdex = huTurnIdex;
-    }
 
     public void setCards(List<Integer> cards) {
         this.cards = cards;
@@ -125,20 +89,8 @@ public class BattleBalance {
         this.winPoint += point;
     }
 
-    public void addHuPoint(int point){
-        this.huPoint += point;
-    }
-
-    public void addGangPoint(int point){
-        this.gangPoint += point;
-    }
-
-    public void addFanShu(int fanShu){
-        this.fanShu += fanShu;
-    }
-
-    public List<Integer> getStatusFrom() {
-        return statusFrom;
+    public void setIdex(int idex) {
+        this.idex = idex;
     }
 
     public void setStatusFrom(List<Integer> statusFrom) {
@@ -147,6 +99,14 @@ public class BattleBalance {
 
     public HuStatus getStatus() {
         return status;
+    }
+
+    public List<MaCard> getMaCards() {
+        return maCards;
+    }
+
+    public void setMaCards(List<MaCard> maCards) {
+        this.maCards = maCards;
     }
 
     public void setStatus(HuStatus status) {
@@ -164,10 +124,6 @@ public class BattleBalance {
     public List<Integer> getWinTypes(){
         List<Integer> winTypes = new ArrayList<>();
         winTypes.add(status.ordinal());
-        winTypes.add(fanShu);
-        winTypes.add(huPoint);
-        winTypes.add(gangPoint);
-        winTypes.add(huTurnIdex);
         return winTypes;
     }
 
@@ -179,6 +135,7 @@ public class BattleBalance {
         obj.putInt("wp", winPoint );
         obj.putSFSObject("ex",ex);
         ex.putInt("hi",huIndex);
+        ex.putInt("idex",idex);
         SFSArray bs = new SFSArray();
         for(CardBalance cardBalance : balances){
             bs.addSFSObject(cardBalance.toSFSObject());
@@ -189,6 +146,14 @@ public class BattleBalance {
                 battleScoreArr.addSFSObject(battleScore.toSFSObject());
             }
             obj.putSFSArray("sc", battleScoreArr);
+        }
+
+        if(maCards.size() > 0){
+            SFSArray battleScoreArr = new SFSArray();
+            for(MaCard maCard : maCards){
+                battleScoreArr.addSFSObject(maCard.toSFSObject());
+            }
+            obj.putSFSArray("ma", battleScoreArr);
         }
 
         if(!statusFrom.isEmpty()){
@@ -203,6 +168,7 @@ public class BattleBalance {
         StringBuffer sb = new StringBuffer("{");
         sb.append("uid=").append(playerId).append(",");
         sb.append("wp=").append(winPoint).append(",");
+        sb.append("idex=").append(idex).append(",");
         sb.append("wt={").append(StringUtils.join(getWinTypes(), ",")).append("},");
         sb.append("cds={").append(StringUtils.join(cards, ",")).append("},");
         sb.append("cb={");
@@ -219,6 +185,14 @@ public class BattleBalance {
             sb.append("}");
         }
 
+        if(maCards.size() > 0){
+            sb.append(",ma={");
+            for(MaCard bs : maCards){
+                sb.append(bs.toFormatString()).append(",");
+            }
+            sb.append("}");
+        }
+
         if(statusFrom.size() > 0){
             sb.append(",st={").append(StringUtils.join(statusFrom, ",")).append("}");
         }
@@ -229,6 +203,10 @@ public class BattleBalance {
         sb.append("}");
         sb.append("}");
         return sb.toString();
+    }
+
+    public void putMaCard(MaCard maCard) {
+        this.maCards.add(maCard);
     }
 
     public static enum HuStatus{
