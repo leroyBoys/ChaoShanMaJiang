@@ -88,28 +88,24 @@ public class MJGameType {
         public static final int HaiDi = 100;
         public static final int JieShu=53;		//牌局结束
 
-        public static final int Unknow = 150;
-        public static final int Ting = 151;
-        public static final int PingHU = 149;
+        public static final int PingHU = 150;
         public static final int HunYiSe = 152;
-        public static final int DaDuiZiHu = 153;
+        public static final int PengPengHu = 153;
         public static final int QiDuiHu = 154;
         public static final int HaohuaQiDuiHu = 155;
         public static final int QingYiSeHu = 156;
-        public static final int ShuangHaohuaQiDuiHu = 157;
-        public static final int SanHaohuaQiDuiHu= 158;
+        public static final int ShuangHaohuaQiDuiHu = 158;
+        public static final int SanHaohuaQiDuiHu= 159;
         public static final int GangShangHu = 25; // 杠上胡
         public static final int WinSelf = 27; // 自摸
+        public static final int ShiSanYao= 160;//13幺
+        public static final int ZiYiSe= 161;//字一色
+        public static final int ShiBaLuoHan= 162;//十八罗汉
+        public static final int YiJiuHu= 163;//一九胡
+        public static final int QingYaoJiu= 164;//清幺九
+        public static final int LianZhuang= 165;//连庄
 
         public static final int QiangGangHu = 176; // 抢杠
-        public static final int YiGui=170;			//一归
-        public static final int ErGui=171;			//二归
-        public static final int SanGui=172;			//三归
-        public static final int SiGui=175;		//四归
-        public static final int WuGui=190;		//五归
-        public static final int LiuGui=191;		//六归
-        public static final int QiGui=192;		//七归
-        public static final int BaGui=193;		//八归
 
         public static final int R_HuJiaoZhuanYi = 408;//转雨
 

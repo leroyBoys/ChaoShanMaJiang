@@ -2,13 +2,10 @@ package com.rafo.chess.engine.majiang.action;
 
 import java.util.*;
 
-import com.rafo.chess.engine.action.AbstractActionMediator;
 import com.rafo.chess.engine.game.MJGameType;
 import com.rafo.chess.engine.majiang.CardGroup;
 import com.rafo.chess.engine.majiang.MahjongEngine;
-import com.rafo.chess.engine.plugin.IOptHuTipFanPlugin;
 import com.rafo.chess.engine.plugin.impl.cs.HuQiDuiPlugin;
-import com.rafo.chess.model.battle.CanHuCardAndRate;
 import com.rafo.chess.model.battle.HuInfo;
 import com.rafo.chess.model.battle.PlayerCardInfo;
 import com.rafo.chess.utils.GhostMJHuUtils;
@@ -477,21 +474,6 @@ public class ActionManager {
 	 * @param act
 	 */
 	public static void checkHuCardTip(MJPlayer player,GameRoom room,IEPlayerAction act) {
-	}
-
-	private static int getFanShu(GameRoom gameRoom,MJPlayer player,HuInfo huInfo){
-		int fanShu = 0;
-
-		ArrayList<IOptPlugin> allHuPluginList = OptPluginFactory.createPluginListByActionType(
-				IEMajongAction.PLAYER_ACTION_TYPE_CARD_HU, gameRoom.getRstempateGen().getTempId());
-
-		for(IOptPlugin plugin : allHuPluginList){
-			if ((plugin instanceof IOptHuTipFanPlugin)) {
-				fanShu+=((IOptHuTipFanPlugin)plugin).getFan(huInfo,gameRoom,player);
-			}
-		}
-
-		return fanShu;
 	}
 
 	private static Map<Integer,Integer> getCanUsedCard(int myUid,GameRoom room){

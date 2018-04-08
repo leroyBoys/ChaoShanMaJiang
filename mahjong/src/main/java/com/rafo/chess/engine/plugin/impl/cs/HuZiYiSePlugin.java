@@ -7,11 +7,11 @@ import java.util.ArrayList;
 
 
 /***
- * 抓到指定牌触发执行
+ * 字一色：全部由东南西北中发白组成的牌型，没有万条筒
  * 
  * @author Administrator
  */
-public class HuHunYiSePlugin extends HuPayPlugin{
+public class HuZiYiSePlugin extends HuPayPlugin{
 
 	@Override
 	public boolean analysis(HuAction action) {
@@ -22,10 +22,11 @@ public class HuHunYiSePlugin extends HuPayPlugin{
 		ArrayList<CardGroup> groups = action.getRoomInstance().getPlayerById(action.getPlayerUid()).getHandCards().getOpencards();
 		for(CardGroup goup:groups){
 			if(goup.getCardsList().get(0)>40){
-				return true;
+				return false;
 			}
 		}
 
-		return false;
+		return true;
 	}
+
 }

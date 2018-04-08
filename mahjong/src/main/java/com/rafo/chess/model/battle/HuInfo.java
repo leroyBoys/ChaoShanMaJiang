@@ -1,5 +1,10 @@
 package com.rafo.chess.model.battle;
 
+import com.rafo.chess.engine.majiang.CardGroup;
+import com.rafo.chess.engine.majiang.MJCard;
+
+import java.util.List;
+
 /**
  * Created by Administrator on 2017/11/8.
  */
@@ -8,7 +13,7 @@ public class HuInfo {
     private HuType huType; //胡的类型 平胡 大对子 七对
     private PlayerCardInfo playerCardInfo;
     private int colorCount; //颜色数据
-    private boolean kaErTiao; //卡二条
+    private PlayerCardPool playerCardPool;
     private int guiCount;//归数量
     private int rate; //倍率
 
@@ -52,16 +57,16 @@ public class HuInfo {
         this.guiCount = guiCount;
     }
 
-    public boolean isKaErTiao() {
-		return kaErTiao;
-	}
+    public PlayerCardPool getPlayerCardPool(List<MJCard> hands, List<CardGroup> groups) {
+        if(playerCardPool != null){
+            return playerCardPool;
+        }
+        playerCardPool = new PlayerCardPool(hands,groups);
+        return playerCardPool;
+    }
 
-	public void setKaErTiao(boolean kaErTiao) {
-		this.kaErTiao = kaErTiao;
-	}
-
-	public enum HuType{
-        QiDui, PingHu, DaDuiZi,HunYiSe
+    public enum HuType{
+        QiDui, PingHu, DaDuiZi,ShiSanYao,
     }
 
 }

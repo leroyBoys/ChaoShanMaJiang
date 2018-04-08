@@ -56,6 +56,7 @@ public abstract class HmHuPlugin extends HuPlugin {
 			return;
 
 		PayDetail payDetail = this.payment(action);
+		action.setDaHuPayDetail(payDetail);
 		// 胜利
 		GameRoom room = action.getRoomInstance();
 		MJPlayer player = room.getPlayerById(action.getPlayerUid());

@@ -635,7 +635,12 @@ public class MathUtils {
 	}
 
 	public static void main(String[] args) {
-		int cardNum = 23;
+		long i = 1<<14|1<<15;
+		System.out.println(getPre(i,40));
+	}
+
+	public static long getPre(long target,int num){
+		return target<<(64-num);
 	}
 
 	public static final String FormateStringForLua(SFSArray sfsObject){

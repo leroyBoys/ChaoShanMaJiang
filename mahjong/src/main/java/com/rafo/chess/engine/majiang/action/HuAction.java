@@ -1,6 +1,7 @@
 package com.rafo.chess.engine.majiang.action;
 
 import com.rafo.chess.engine.action.exception.ActionRuntimeException;
+import com.rafo.chess.engine.calculate.PayDetail;
 import com.rafo.chess.engine.game.MJGameType;
 import com.rafo.chess.engine.majiang.MJCard;
 import com.rafo.chess.engine.room.GameRoom;
@@ -10,6 +11,7 @@ import java.util.List;
 
 public class HuAction extends BaseMajongPlayerAction {
 	private HuInfo huInfo;
+	private PayDetail daHuPayDetail;
 
 	private boolean isTianHu = false;
 	private boolean qiangGangHu = false;
@@ -102,6 +104,14 @@ public class HuAction extends BaseMajongPlayerAction {
 
 	public boolean isTianHu() {
 		return isTianHu;
+	}
+
+	public PayDetail getDaHuPayDetail() {
+		return daHuPayDetail;
+	}
+
+	public void setDaHuPayDetail(PayDetail daHuPayDetail) {
+		this.daHuPayDetail = daHuPayDetail;
 	}
 
 	public void setTianHu(boolean tianHu) {

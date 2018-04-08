@@ -71,6 +71,12 @@ public class GhostMJHuUtils {
                 huInfo.setColorCount(playerCardInfo.getColorCount());
                 return huInfo;
             }
+
+            huInfo = checkShiSanYao(playerCardInfo.getCardIds());
+            if(huInfo != null){
+                huInfo.setColorCount(playerCardInfo.getColorCount());
+                return huInfo;
+            }
         }
 
         //2. 大对子
@@ -81,8 +87,35 @@ public class GhostMJHuUtils {
         }
 
         //3. 平胡
-
         huInfo = checkPingHuWithGui(MJTool.getCardsByType(playerCardInfo.getCardIds(),0));
+        return huInfo;
+    }
+
+    /**
+     *  13幺
+     * @param handCard
+     * @return
+     */
+    private static HuInfo checkShiSanYao(List<Integer> handCard) {
+        Map<Integer,Integer> yaoJiu = new HashMap<>();
+        int twoCount = 0;
+        for(Integer card:handCard){
+            if(!YouJiuArea.contains(card)){
+                return null;
+            }
+
+            Integer count = yaoJiu.get(card);
+            if(count == null){
+                yaoJiu.put(card,1);
+            }else if(count > 1 || twoCount++ == 1){
+                return null;
+            }
+            yaoJiu.put(card,2);
+        }
+
+        HuInfo huInfo = new HuInfo();
+        huInfo.setHuType(HuInfo.HuType.ShiSanYao);
+
         return huInfo;
     }
 
@@ -118,11 +151,7 @@ public class GhostMJHuUtils {
         }
 
         HuInfo huInfo = new HuInfo();
-        if(handCards.length > 3){
-            huInfo.setHuType(HuInfo.HuType.HunYiSe);
-        }else {
-            huInfo.setHuType(HuInfo.HuType.PingHu);
-        }
+        huInfo.setHuType(HuInfo.HuType.PingHu);
 
         return huInfo;
     }
