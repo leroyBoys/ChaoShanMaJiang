@@ -1,10 +1,5 @@
 package com.rafo.chess.model.battle;
 
-import com.rafo.chess.engine.majiang.CardGroup;
-import com.rafo.chess.engine.majiang.MJCard;
-
-import java.util.List;
-
 /**
  * Created by Administrator on 2017/11/8.
  */
@@ -13,7 +8,6 @@ public class HuInfo {
     private HuType huType; //胡的类型 平胡 大对子 七对
     private PlayerCardInfo playerCardInfo;
     private int colorCount; //颜色数据
-    private PlayerCardPool playerCardPool;
     private int guiCount;//归数量
     private int rate; //倍率
 
@@ -55,14 +49,6 @@ public class HuInfo {
 
     public void setGuiCount(int guiCount) {
         this.guiCount = guiCount;
-    }
-
-    public PlayerCardPool getPlayerCardPool(List<MJCard> hands, List<CardGroup> groups) {
-        if(playerCardPool != null){
-            return playerCardPool;
-        }
-        playerCardPool = new PlayerCardPool(hands,groups);
-        return playerCardPool;
     }
 
     public enum HuType{
