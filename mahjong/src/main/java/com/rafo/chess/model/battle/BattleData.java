@@ -223,7 +223,7 @@ public class BattleData {
             for(MaCard maCard : maiMaCards){
                 maiMaArray.addSFSObject(maCard.toSFSObject());
             }
-            obj.putSFSArray("ma", maiMaArray);
+            obj.putSFSArray("maima", maiMaArray);
         }
 
         if (huCardTipShow != null && huCardTipShow.size() > 0) {
@@ -262,7 +262,7 @@ public class BattleData {
         }
 
         if(maiMaCards.size() > 0){
-            sb.append(",ma={");
+            sb.append(",maima={");
             for(MaCard bs : maiMaCards){
                 sb.append(bs.toFormatString()).append(",");
             }

@@ -80,8 +80,39 @@ public class RafoRoomService {
 			room.addAttribute(RoomAttributeConstants.LiuJuSuanGang, 1);
 		}
 
-		room.addAttribute(RoomAttributeConstants.MaiMa, 2);
-		room.addAttribute(RoomAttributeConstants.ZhuaMa, 2);
+		if((req.getType() & MJGameType.CreateRoomType.wuZi) == MJGameType.CreateRoomType.wuZi){
+			room.setExtraCardModue(2);
+		}else if((req.getType() & MJGameType.CreateRoomType.wuFeng) == MJGameType.CreateRoomType.wuFeng){
+			room.setExtraCardModue(1);
+		}
+
+		int ma = 0;
+		if((req.getType() & MJGameType.CreateRoomType.maiMa1) == MJGameType.CreateRoomType.maiMa1){
+			ma = 2;
+		}else if((req.getType() & MJGameType.CreateRoomType.maiMa2) == MJGameType.CreateRoomType.maiMa2){
+			ma = 4;
+		}else if((req.getType() & MJGameType.CreateRoomType.maiMa3) == MJGameType.CreateRoomType.maiMa3){
+			ma = 8;
+		}
+
+		room.addAttribute(RoomAttributeConstants.MaiMa, ma);
+
+		ma = 0;
+		if((req.getType() & MJGameType.CreateRoomType.zhuaMa1) == MJGameType.CreateRoomType.zhuaMa1){
+			ma = 1;
+		}else if((req.getType() & MJGameType.CreateRoomType.zhuaMa2) == MJGameType.CreateRoomType.zhuaMa2){
+			ma = 2;
+		}
+
+		room.addAttribute(RoomAttributeConstants.ZhuaMa, ma);
+
+		int maxfan = 0;
+		if((req.getType() & MJGameType.CreateRoomType.maxFan1) == MJGameType.CreateRoomType.maxFan1){
+			maxfan = 5;
+		}else if((req.getType() & MJGameType.CreateRoomType.maxFan2) == MJGameType.CreateRoomType.maxFan2){
+			maxfan = 10;
+		}
+		room.addAttribute(RoomAttributeConstants.MaxFan, maxfan);
 
 		room.addAttribute(RoomAttributeConstants.Round, room.checkRoomCount(req.getCount()));
 		room.addAttribute(RoomAttributeConstants.Type, req.getType());

@@ -1,5 +1,7 @@
 package com.rafo.chess.engine.calculate;
 
+import com.rafo.chess.engine.action.BaseAction;
+import com.rafo.chess.engine.action.IEPlayerAction;
 import com.rafo.chess.engine.plugin.IOptPlugin;
 import org.apache.commons.lang.StringUtils;
 
@@ -8,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PayDetail implements Cloneable {
+	private IEPlayerAction baseAction;
 	/** 第几步 */
 	private int step;
 	/** 是否有效 */
@@ -54,6 +57,14 @@ public class PayDetail implements Cloneable {
 
 	public int[] getFromUids() {
 		return fromUids;
+	}
+
+	public IEPlayerAction getBaseAction() {
+		return baseAction;
+	}
+
+	public void setBaseAction(IEPlayerAction baseAction) {
+		this.baseAction = baseAction;
 	}
 
 	public enum PayType{

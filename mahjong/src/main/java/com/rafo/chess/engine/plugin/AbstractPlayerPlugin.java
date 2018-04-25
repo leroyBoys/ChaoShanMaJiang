@@ -80,6 +80,7 @@ public abstract class AbstractPlayerPlugin<A extends IEPlayerAction> implements
 		}
 		ratePay.setType(action.getActionType());
 		ratePay.setSubType(gen.getSubType());
+		ratePay.setBaseAction(action);
 		action.getRoomInstance().getEngine().getCalculator()
 				.addPayDetailed(ratePay);
 		return ratePay;

@@ -17,5 +17,6 @@ public enum  RoomAttributeConstants {
      */
     CanDianPao,
     /**  流局算杠分 */
-    LiuJuSuanGang
+    LiuJuSuanGang,
+    MaxFan
 }

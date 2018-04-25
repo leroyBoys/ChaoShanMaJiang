@@ -103,7 +103,7 @@ public class Calculator {
 				if(!player.isHavHu()){
 					MJPlayer p = player;
 					if(p.getJiaozui() != null){
-						battleBalance.setStatus(BattleBalance.HuStatus.ChaJiao);
+					//	battleBalance.setStatus(BattleBalance.HuStatus.ChaJiao);
 						battleBalance.setStatusFrom(p.getJiaoZuiPayPlayers());
 					}
 				}

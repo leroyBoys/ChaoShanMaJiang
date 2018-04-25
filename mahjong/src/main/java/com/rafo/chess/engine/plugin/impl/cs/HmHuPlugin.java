@@ -134,14 +134,21 @@ public abstract class HmHuPlugin extends HuPlugin {
 		}
 
 		if(room.getPlayerById(pd.getToUid()).isHavHu()){
+			HuAction huAction = (HuAction) pd.getBaseAction();
 			BattleBalance battleBalance = calculator.getUserBattleBalances().get(pd.getToUid());
-			BattleBalance.HuStatus status = BattleBalance.HuStatus.JiePao;
-			if(pd.getDianPlayer() == 0){
-				if(room.getEngine().getCalculator().getSpeialPayStep(IEMajongAction.PLAYER_ACTION_TYPE_CARD_HU,pd.getStep()) == null){
-					status = BattleBalance.HuStatus.ZiMo;
+			if(pd.getDianPlayer() != 0){
+				if(huAction.isQiangGangHu()){
+					for (int uid : pd.getFromUid()) {
+						calculator.getUserBattleBalances().get(uid).addHuStatus(BattleBalance.HuStatus.BeiQiangGang);
+					}
+				}else {
+					battleBalance.addHuStatus(BattleBalance.HuStatus.JiePao);
+					for (int uid : pd.getFromUid()) {
+						calculator.getUserBattleBalances().get(uid).addHuStatus(BattleBalance.HuStatus.DianPao);
+					}
 				}
 			}
-			battleBalance.setStatus(status);
+
 			battleBalance.setStatusFrom(fromPlayers);
 
 			battleBalance.setHuIndex(room.getLastWinner().getHuTurnIdex(pd.getToUid()));

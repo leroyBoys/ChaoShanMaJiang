@@ -104,6 +104,7 @@ public class MJGameType {
         public static final int YiJiuHu= 163;//一九胡
         public static final int QingYaoJiu= 164;//清幺九
         public static final int LianZhuang= 165;//连庄
+        public static final int HuMaiMa= 166;//胡买马
 
         public static final int QiangGangHu = 176; // 抢杠
 
@@ -119,9 +120,10 @@ public class MJGameType {
         public static final int onlyZiMo = 1<<4;//只能自摸
         public static final int maxFan1 = 1<<5;//封顶5番
         public static final int maxFan2 = 1<<6;//封顶10番
-        public static final int liujuSuanGang = 1<<8;//流局算杠
-        public static final int gangBaoQuanBao = 1<<9;//杠爆全包
-        public static final int lianZhuang = 1<<10;//连庄
+        public static final int liujuSuanGang = 1<<7;//流局算杠
+        public static final int gangBaoQuanBao = 1<<8;//杠爆全包
+        public static final int lianZhuang = 1<<9;//连庄
+        public static final int quanpai=1<<10;//全牌
         public static final int wuZi=1<<11;//无字
         public static final int wuFeng=1<<12;//无风
         public static final int maiWuMa=1<<13;//无马

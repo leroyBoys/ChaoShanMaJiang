@@ -115,7 +115,7 @@ public class GameRoom<C extends IECardModel> {
 	protected SubCard subCard = new SubCardDefault();
 	private boolean isCheckTing;
 	private MJGameService mjGameService;
-	private int extraCardModue = 1;//额外新加排斥模式0:无新加，1:增加万；2：增加东西南北中发白
+	private int extraCardModue = 0;//额外新加排斥模式0:全加，1:增加万；2：增加东西南北中发白
 
 	private int canHuCardCheckPlayerId=0;
 	/** 胡牌提示数据*/
@@ -545,7 +545,8 @@ public class GameRoom<C extends IECardModel> {
 	}
 
     public int getMaxFan() {
-		return 0;
+		Object v = getAttribute(RoomAttributeConstants.MaxFan);
+		return v == null?0:Integer.valueOf(v.toString());
     }
 
     public int getType() {

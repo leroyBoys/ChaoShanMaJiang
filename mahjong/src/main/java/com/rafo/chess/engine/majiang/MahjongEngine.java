@@ -68,14 +68,16 @@ public class MahjongEngine extends AbstractGameEngine<MJCard> {
 			}
 		}
 
-		if(gameRoom.getExtraCardModue() == 1){
+		if(gameRoom.getExtraCardModue() == 1 || gameRoom.getExtraCardModue() == 0){
 			for (int card = 11;card<20;card++) {
 				for(int i = 0;i<4;i++){
 					MJCard c = (MJCard) GameModelFactory.createCard(card, gen.getCardType());
 					cardList.add(c);
 				}
 			}
-		}else if(gameRoom.getExtraCardModue() == 2){
+		}
+
+		if(gameRoom.getExtraCardModue() == 2  || gameRoom.getExtraCardModue() == 0){
 			for (int card = 41;card<48;card++) {
 				for(int i = 0;i<4;i++){
 					MJCard c = (MJCard) GameModelFactory.createCard(card, gen.getCardType());

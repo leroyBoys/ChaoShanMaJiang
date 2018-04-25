@@ -81,7 +81,7 @@ public class MJGameService {
         	return;
 		}
 
-        if(player.isOffline() && player.getPlayState() == IPlayer.PlayState.Idle && room.getResults().containsKey(playerId)){
+        if(player.getPlayState() == IPlayer.PlayState.Idle && room.getResults().containsKey(playerId)){
 			player.setOffline(false);
             BattleStepRES res = (BattleStepRES) room.getResults().get(playerId);
 
@@ -660,12 +660,12 @@ public class MJGameService {
 							balance.setHuIndex(huIndex);
 							balance.addExValueInt("hi",huIndex);
 
-							if(p.getHuPayDetail().getDianPlayer() == 0){//
+						/*	if(p.getHuPayDetail().getDianPlayer() == 0){//
 								balance.setStatus(BattleBalance.HuStatus.ZiMo);
 							}else {
 								balance.setStatus(BattleBalance.HuStatus.JiePao);
 							}
-
+*/
 							int huCard = p.getHandCards().getHandCards().get(p.getHandCards().getHandCards().size()-1).getCardNum();
 							CardBalance cardBlance = new CardBalance();
 							cardBlance.setType(MJGameType.PlayType.Hu);
@@ -791,6 +791,7 @@ public class MJGameService {
 			data.setBattleBalances(battleData.getBattleBalances());
 			data.setBattleCensuss(battleData.getBattleCensuss());
 			data.setEndTime(battleData.getEndTime());
+			data.setMaiMaCards(battleData.getMaiMaCards());
 			res.setBattleData(data);
 			results.put(player.getUid(), res);
 		}

@@ -5,6 +5,7 @@ import com.smartfoxserver.v2.entities.data.SFSObject;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -18,8 +19,7 @@ public class BattleBalance {
     private int idex;//索引位置
     private List<CardBalance> balances = new ArrayList<>();
     private List<BattleScore> scores = new ArrayList<>();//胡牌类型集合
-    //用于展示结算界面上的效果，如接炮、自摸，查叫等---来源（接炮失分玩家(点炮)，自摸失分玩家，查叫失分玩家）
-    private HuStatus status = HuStatus.NULL;
+    private List<HuStatus> statusList = new LinkedList<>();
     private List<Integer> statusFrom = new ArrayList<>();
     private List<MaCard> maCards = new ArrayList<>();//抓码情况
     private SFSObject ex=new SFSObject();
@@ -97,8 +97,8 @@ public class BattleBalance {
         this.statusFrom = statusFrom;
     }
 
-    public HuStatus getStatus() {
-        return status;
+    public void addHuStatus(HuStatus status){
+        statusList.add(status);
     }
 
     public List<MaCard> getMaCards() {
@@ -107,10 +107,6 @@ public class BattleBalance {
 
     public void setMaCards(List<MaCard> maCards) {
         this.maCards = maCards;
-    }
-
-    public void setStatus(HuStatus status) {
-        this.status = status;
     }
 
     public List<BattleScore> getScores() {
@@ -123,7 +119,11 @@ public class BattleBalance {
 
     public List<Integer> getWinTypes(){
         List<Integer> winTypes = new ArrayList<>();
-        winTypes.add(status.ordinal());
+        if(!statusList.isEmpty()){
+            for(HuStatus status:statusList){
+                winTypes.add(status.ordinal());
+            }
+        }
         return winTypes;
     }
 
@@ -209,7 +209,7 @@ public class BattleBalance {
         this.maCards.add(maCard);
     }
 
-    public static enum HuStatus{
-        NULL,JiePao,ZiMo,ChaJiao,BaoJiao
+    public enum HuStatus{
+        NULL,JiePao,DianPao,BeiQiangGang
     }
 }
