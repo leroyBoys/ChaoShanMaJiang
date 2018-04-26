@@ -79,7 +79,7 @@ public abstract class MingGangPlugin extends GangPlugin {
 		MJPlayer pTemp = (MJPlayer) objects[0];
 		IEPlayerAction act = (IEPlayerAction) objects[1];
 		int cardNum = act.getCard();
-		if(act.getPlayerUid() == pTemp.getUid() || cardNum==45){
+		if(act.getPlayerUid() == pTemp.getUid()){
 			return false;
 		}
 
@@ -87,9 +87,9 @@ public abstract class MingGangPlugin extends GangPlugin {
 		for (int num : map.keySet()) {
 			int count = map.get(num);
 			if (count >= 3 && num == cardNum) {
-				if(!ActionManager.isCanGangWithOutChangeHuType(pTemp,getHands(pTemp.getHandCards().getHandCards(),num,3))){
+			/*	if(!ActionManager.isCanGangWithOutChangeHuType(pTemp,getHands(pTemp.getHandCards().getHandCards(),num,3))){
 					continue;
-				}
+				}*/
 
 				GangAction gangAct = new GangAction(act.getRoomInstance(), pTemp.getUid(), act.getPlayerUid(),
 						num, gen.getSubType());
