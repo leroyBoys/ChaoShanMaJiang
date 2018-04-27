@@ -81,7 +81,7 @@ public class MJGameService {
         	return;
 		}
 
-        if(player.getPlayState() == IPlayer.PlayState.Idle && room.getResults().containsKey(playerId)){
+        if(player.isOffline() && player.getPlayState() == IPlayer.PlayState.Idle && room.getResults().containsKey(playerId)){
 			player.setOffline(false);
             BattleStepRES res = (BattleStepRES) room.getResults().get(playerId);
 
