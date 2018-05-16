@@ -228,7 +228,10 @@ public class RafoRoomService {
 			applier.setScore(0);
 			applier.setGateId(gateNode.getName());
 
-			room.joinRoom(applier);
+			if(!room.joinRoom(applier)){
+				enterFailed(loginUser, Constants.ROOM_ENTER_FAILED_ROOM_FULL, roomId, gateNode);
+				return;
+			}
 
 			if(room.getAgentOwnerUid() > 0){
 				roomExt.getAgentRoomService().updateCacheStatus(room);
